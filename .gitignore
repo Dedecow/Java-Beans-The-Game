@@ -1,0 +1,33 @@
+# Arquivos e pastas do NetBeans
+nbproject/
+build/
+dist/
+.project
+.settings/
+.classpath
+
+# Arquivos de IDEs e sistemas operacionais comuns
+# Arquivos do IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Arquivos do Eclipse
+.settings/
+.classpath
+.project
+
+# Arquivos de macOS
+.DS_Store
+
+# Arquivos do Windows
+Thumbs.db
+Desktop.ini
+
+# Diretórios de build e temporários do Java
+*.class
+bin/
+target/
+classes/
