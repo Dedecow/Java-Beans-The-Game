@@ -6,7 +6,7 @@ dist/
 .settings/
 .classpath
 
-# Arquivos de IDEs e sistemas operacionais comuns.
+# Arquivos de IDEs e sistemas operacionais comuns
 # Arquivos do IntelliJ IDEA
 .idea/
 *.iml
