@@ -5,19 +5,50 @@ import java.util.List;
 
 public class Cardapio {
     private static final List<Ingrediente> ingredientes = Arrays.asList(
-            new Ingrediente("Cafe"),
-            new Ingrediente("Agua"),
+            new Ingrediente("Café"),
+            new Ingrediente("Água"),
             new Ingrediente("Leite"),
-            new Ingrediente("Acucar"),
+            new Ingrediente("Leite vegetal"),
+            new Ingrediente("Açúcar"),
             new Ingrediente("Cacau"),
-            new Ingrediente("Matcha")
+            new Ingrediente("Matcha"),
+            new Ingrediente("Chantilly"),
+            new Ingrediente("Canela")
     );
 
     private static final List<MenuItem> menu = Arrays.asList(
-            new MenuItem("Cafe preto", Arrays.asList(ingredientes.get(0), ingredientes.get(1))),
-            new MenuItem("Cafe latte", Arrays.asList(ingredientes.get(0), ingredientes.get(1), ingredientes.get(2))),
-            new MenuItem("capuccino", Arrays.asList(ingredientes.get(0), ingredientes.get(1), ingredientes.get(2), ingredientes.get(4))),
-            new MenuItem("Matcha", Arrays.asList(ingredientes.get(5), ingredientes.get(1)))
+            new MenuItem("Café Preto", Arrays.asList(
+                    ingredientes.get(0), // Café
+                    ingredientes.get(1)  // Água
+            )),
+            new MenuItem("Café Latte", Arrays.asList(
+                    ingredientes.get(0), // Café
+                    ingredientes.get(1), // Água
+                    ingredientes.get(2)  // Leite
+            )),
+            new MenuItem("Cappuccino", Arrays.asList(
+                    ingredientes.get(0), // Café
+                    ingredientes.get(1), // Água
+                    ingredientes.get(2), // Leite
+                    ingredientes.get(4), // Açúcar
+                    ingredientes.get(5)  // Cacau
+            )),
+            new MenuItem("Matcha Latte", Arrays.asList(
+                    ingredientes.get(6), // Matcha
+                    ingredientes.get(1), // Água
+                    ingredientes.get(2)  // Leite
+            )),
+            new MenuItem("Chocolate Quente", Arrays.asList(
+                    ingredientes.get(5), // Cacau
+                    ingredientes.get(2), // Leite
+                    ingredientes.get(4), // Açúcar
+                    ingredientes.get(7)  // Chantilly
+            )),
+            new MenuItem("Café com Canela", Arrays.asList(
+                    ingredientes.get(0), // Café
+                    ingredientes.get(1), // Água
+                    ingredientes.get(8)  // Canela
+            ))
     );
 
     public static List<Ingrediente> getIngredientes() {
@@ -29,13 +60,6 @@ public class Cardapio {
     }
 
     public static List<Ingrediente> getTodosIngredientes() {
-        return List.of(
-                new Ingrediente("Cafe"),
-                new Ingrediente("Agua"),
-                new Ingrediente("Leite"),
-                new Ingrediente("Acucar"),
-                new Ingrediente("Cacau"),
-                new Ingrediente("Matcha")
-        );
+        return ingredientes;
     }
 }
