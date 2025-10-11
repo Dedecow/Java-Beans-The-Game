@@ -12,8 +12,6 @@ public class TelaInicial extends JPanel {
     private static final int LARGURA = 600;
     private static final int ALTURA = 400;
     
-    // NOTA: Removemos a cor avulsa 'FUNDO_ESCURO' daqui!
-
     public TelaInicial(Jogo jogo) {
         this.jogo = jogo;
 
@@ -21,7 +19,7 @@ public class TelaInicial extends JPanel {
         this.setBackground(CafeColors.FUNDO_CAFE_ESCURO);
         this.setLayout(new GridBagLayout()); 
 
-        // Definimos o layout centralizado
+        // Layout centralizado
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 0, 10, 0); 
         gbc.gridx = 0; 

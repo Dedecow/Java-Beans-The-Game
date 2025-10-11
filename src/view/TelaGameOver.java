@@ -13,22 +13,21 @@ public class TelaGameOver extends JPanel {
     private static final int LARGURA = 600;
     private static final int ALTURA = 400;
 
-    // Removemos as definições de cor daqui.
 
     public TelaGameOver(Jogo jogo) {
         this.jogo = jogo;
 
         this.setPreferredSize(new Dimension(LARGURA, ALTURA));
-        this.setBackground(CafeColors.FUNDO_PRINCIPAL); // Usa a cor encapsulada
+        this.setBackground(CafeColors.FUNDO_PRINCIPAL);
         
         this.setLayout(null); 
         
         // Exemplo: Botão estilizado usando CafeColors
-        JButton btnReiniciar = new JButton("PRÓXIMO CLIENTE");
+        JButton btnReiniciar = new JButton("MAIS CAFÉ ?");
         btnReiniciar.setFont(new Font("Monospaced", Font.BOLD, 16));
         btnReiniciar.setFocusable(false);
-        btnReiniciar.setBackground(CafeColors.MARROM_ESCURO); // Cor encapsulada
-        btnReiniciar.setForeground(CafeColors.TEXTO_BRANCO); // Cor encapsulada
+        btnReiniciar.setBackground(CafeColors.MARROM_ESCURO);
+        btnReiniciar.setForeground(CafeColors.TEXTO_BRANCO);
         btnReiniciar.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2)); 
         
         btnReiniciar.addActionListener(e -> {
@@ -55,16 +54,16 @@ public class TelaGameOver extends JPanel {
         int painel1X = (LARGURA - painel1Largura) / 2;
         int painel1Y = ALTURA / 2 - 120;
         
-        g2d.setColor(CafeColors.DESTAQUE_ROSA); // Usa a cor encapsulada
+        g2d.setColor(CafeColors.DESTAQUE_ROSA); 
         g2d.fill(new RoundRectangle2D.Double(painel1X, painel1Y, painel1Largura, painel1Altura, 20, 20));
         
-        g2d.setColor(CafeColors.MARROM_ESCURO); // Usa a cor encapsulada para a borda
+        g2d.setColor(CafeColors.MARROM_ESCURO); 
         g2d.setStroke(new BasicStroke(2)); 
         g2d.draw(new RoundRectangle2D.Double(painel1X, painel1Y, painel1Largura, painel1Altura, 20, 20));
 
         // Texto "GAME OVER!"
         String gameOverTexto = "GAME OVER!";
-        g2d.setColor(CafeColors.TEXTO_PADRAO); // Usa a cor encapsulada
+        g2d.setColor(CafeColors.TEXTO_PADRAO); 
         g2d.setFont(new Font("Monospaced", Font.BOLD, 36)); 
         FontMetrics fm1 = g2d.getFontMetrics();
         int texto1Largura = fm1.stringWidth(gameOverTexto);

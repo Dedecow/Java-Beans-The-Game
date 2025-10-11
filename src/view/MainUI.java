@@ -22,7 +22,7 @@ public class MainUI extends JFrame {
         this.setPreferredSize(new Dimension(600, 400));
         
         // ************************************************
-        // CORREÇÃO AQUI: INICIA COM A TELA INICIAL
+        // INICIADOR
         // ************************************************
         mostrarTela(new TelaInicial(jogo)); 
         
