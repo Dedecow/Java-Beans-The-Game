@@ -1,64 +1,61 @@
 package engine;
 
 import data.model.Historico;
-import data.persistence.HistoricoDAO;
-import data.persistence.IPersistencia;
-import view.MainUI; // Agora importa a MainUI corrigida do pacote 'view'
+import data.persistence.IPersistencia; 
+import data.persistence.HistoricoDAO; 
+import view.MainUI;
+import view.TelaGameOver;
+import view.TelaInicial; // Importação necessária para manipular a TelaInicial
 
 /**
  * Classe principal do motor do jogo (Engine).
- * Gerencia a lógica de pontuação e o acesso à persistência.
+ * Gerencia a lógica do jogo e persiste os dados.
+ * 
  */
 public class Jogo {
     private int pontuacaoAtual = 0;
     private final IPersistencia persistencia;
+    private MainUI ui; 
 
-    /**
-     * O construtor define qual implementação de persistência será usada (Injeção de Dependência).
-     */
     public Jogo() {
-        // Usa a implementação mínima (arquivo de texto)
         this.persistencia = new HistoricoDAO();
     }
 
     /**
-     * Inicializa a primeira tela do jogo.
+     * Inicia o motor do jogo, criando a janela principal (UI).
      */
     public void iniciar() {
-        exibirStatus();
+        this.ui = new MainUI(this);
+        // O MainUI em seu construtor deve mostrar a TelaInicial
+    }
+    
+    // ------------------------------------------------------------------
+    // MÉTODOS DE FLUXO DE JOGO CHAMADOS PELA VIEW
+    // ------------------------------------------------------------------
+
+    public void iniciarJogo() {
+        this.pontuacaoAtual = 0; 
+        
+        // Passagem de tela
+        ui.mostrarTela(new TelaGameOver(this)); 
+        
+        System.out.println("Partida Iniciada! (Simulando Tela Jogo com TelaGameOver)");
+        ui.atualizarStatus("Nova Partida! Pontuação: 0");
     }
 
-    /**
-     * Processa a ação do usuário (Acertar ou Errar).
-     * @param acertou Verdadeiro se o pedido foi acertado.
-     */
-    public void processarAcao(boolean acertou) {
-        if (acertou) {
-            pontuacaoAtual += 10;
-            System.out.println("🎉 Pedido Acertado! Pontos: +10");
-        } else {
-            // Salva o histórico e reseta a pontuação ao errar.
-            salvarHistorico("Cliente Teste", pontuacaoAtual);
-            pontuacaoAtual = 0;
-            System.out.println("😭 Pedido Errado! Pontuação Resetada.");
-        }
+    public void reiniciarPartida() {
+        this.pontuacaoAtual = 0; 
         
-        exibirStatus();
+        ui.mostrarTela(new TelaInicial(this)); 
+        
+        System.out.println("Fim de Jogo. Retornando à Tela Inicial.");
     }
     
-    /**
-     * Salva o registro no sistema de persistência.
-     */
-    private void salvarHistorico(String nomeCliente, int pontos) {
-        Historico registro = new Historico(nomeCliente, pontos);
-        persistencia.salvar(registro);
-    }
-    
-    /**
-     * Cria e exibe a interface gráfica.
-     */
-    private void exibirStatus() {
-        // Usa a MainUI do pacote 'view'.
-        new MainUI(this, "Pontuação: " + pontuacaoAtual);
+    // ------------------------------------------------------------------
+    // MÉTODOS DE LÓGICA E STATUS
+    // ------------------------------------------------------------------
+        
+    public int getPontuacao() {
+        return pontuacaoAtual;
     }
 }
