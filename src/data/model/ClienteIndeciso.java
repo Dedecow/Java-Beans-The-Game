@@ -10,6 +10,6 @@ public class ClienteIndeciso extends Cliente{
 
     @Override
     public String comportamento() {
-        return FrasesClientes.getFrase(TipoDeCliente.INDECISO);
+        return FrasesClientes.getFraseComPedido(TipoDeCliente.INDECISO);
     }
 }
