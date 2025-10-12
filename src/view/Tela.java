@@ -6,6 +6,13 @@ package view;
  */
 public enum Tela {
     INICIAL,
-    JOGO, 
-    GAME_OVER
+    JOGO,
+    GAME_OVER,
+    HISTORICO,
+    DETALHES_CLIENTE,
+    PREPARO,
+    RECEITA,
+    MENU_ADMIN,
+    CONFIGURACOES,
+    SOBRE
 }

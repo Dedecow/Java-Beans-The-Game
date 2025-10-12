@@ -1,0 +1,147 @@
+COMO ADICIONAR TELA NA ARQUITETURA ATUAL
+
+RESUMO:
+
+Passo 1: Definir o Novo Estado no enum view.Tela
+Passo 2 (Opcional): Adicionar Cores em view.CafeColors
+Passo 3: Criar a Nova View Pura (view.TelaNova.java)
+Passo 4: Atualizar o Orquestrador view.MainUI
+Passo 5: Criar um Ponto de Navegação
+
+
+Estrutura Arquitetural Camada / Responsabilidade
+
+engine.Jogo  / Contém toda a lógica do jogo e manipula apenas o estado do jogo.
+
+view.MainUI / Orquestrador total — cria, mostra, e gerencia a troca de telas.
+
+view.Tela  / Enum que lista os estados/telas possíveis.
+
+view.TelaX  / View pura — apenas apresenta e coleta input, nunca navega por conta própria.
+
+util.CafeColors / Classe estática de cores padronizadas (sem lógicas ou dependências).
+
+
+COMO ADICIONAR TELA NA ARQUITETURA ATUAL
+
+1 - Atualizar o Enum Tela.java
+package view;
+
+public enum Tela {
+    INICIAL,
+    JOGO,
+    GAME_OVER,
+    RANKING // nova tela
+}
+
+Essa enum é o contrato entre o orquestrador e as views — a única forma de nomear e alternar telas.
+
+2 - Atualizar CafeColors.java (se quiser harmonizar o design da nova tela)
+Abra o arquivo CafeColors.java (geralmente fica em view ou util)
+ e adicione cores específicas se quiser dar destaque visual ao ranking:
+package view;
+
+import java.awt.Color;
+
+public class CafeColors {
+    public static final Color FUNDO_BEGE = new Color(245, 239, 230);
+    public static final Color MARROM_ESCURO = new Color(74, 44, 42);
+    public static final Color TEXTO_BRANCO = new Color(255, 255, 255);
+    public static final Color MARROM_CLARO = new Color(174, 125, 85);
+
+    // Nova cor, se desejar para o Ranking
+    public static final Color OURO = new Color(212, 175, 55);
+}
+
+Assim a paleta continua centralizada e coerente com o restante do sistema.
+
+3 - Criar a nova view pura TelaRanking.java
+Arquivo: src/view/TelaRanking.java
+package view;
+
+import javax.swing.*;
+import java.awt.*;
+
+/**
+ * View pura para exibição do Ranking.
+ * Responsável apenas por layout e captura de input.
+ * A navegação é sempre delegada ao MainUI.
+ */
+public class TelaRanking extends JPanel {
+    private final MainUI mainUI;
+
+    public TelaRanking(MainUI mainUI) {
+        this.mainUI = mainUI;
+        configurarLayout();
+    }
+
+    private void configurarLayout() {
+        setLayout(new BorderLayout());
+        setBackground(CafeColors.FUNDO_BEGE);
+
+        // Cabeçalho
+        JLabel titulo = new JLabel("RANKING DE JOGADORES", SwingConstants.CENTER);
+        titulo.setFont(new Font("Monospaced", Font.BOLD, 28));
+        titulo.setForeground(CafeColors.MARROM_ESCURO);
+        add(titulo, BorderLayout.NORTH);
+
+        // Conteúdo central — lista de jogadores (exemplo estático)
+        DefaultListModel<String> model = new DefaultListModel<>();
+        model.addElement(" Maria - 150 pontos");
+        model.addElement(" João - 120 pontos");
+        model.addElement(" Ana - 90 pontos");
+
+        JList<String> lista = new JList<>(model);
+        lista.setFont(new Font("Monospaced", Font.PLAIN, 16));
+        lista.setBackground(CafeColors.FUNDO_BEGE);
+        lista.setSelectionBackground(CafeColors.MARROM_CLARO);
+
+        JScrollPane scroll = new JScrollPane(lista);
+        scroll.setBorder(BorderFactory.createEmptyBorder(20, 80, 20, 80));
+        add(scroll, BorderLayout.CENTER);
+
+        // Rodapé com botão de retorno
+        JButton btnVoltar = new JButton("VOLTAR AO MENU");
+        btnVoltar.setFont(new Font("Monospaced", Font.BOLD, 14));
+        btnVoltar.setBackground(CafeColors.MARROM_ESCURO);
+        btnVoltar.setForeground(CafeColors.TEXTO_BRANCO);
+        btnVoltar.setFocusPainted(false);
+        btnVoltar.addActionListener(e -> mainUI.mostrarTela(Tela.INICIAL));
+
+        JPanel rodape = new JPanel();
+        rodape.setBackground(CafeColors.FUNDO_BEGE);
+        rodape.add(btnVoltar);
+        add(rodape, BorderLayout.SOUTH);
+    }
+}
+
+
+4 Atualizar o método criarTela() em MainUI.java
+Dentro do switch:
+private JPanel criarTela(Tela tipoTela) {
+    switch (tipoTela) {
+        case INICIAL:
+            return new TelaInicial(this);
+        case JOGO:
+            return new TelaJogo(this);
+        case GAME_OVER:
+            return new TelaGameOver(this);
+        case RANKING:
+            return new TelaRanking(this);
+        default:
+            throw new IllegalArgumentException("Tela desconhecida: " + tipoTela);
+    }
+}
+
+MainUI continua sendo o único ponto de criação e exibição das telas.
+
+5 Criar o ponto de navegação (ex.: em TelaGameOver)
+Dentro da TelaGameOver, você adiciona o botão:
+JButton btnRanking = new JButton("VER RANKING");
+btnRanking.setFont(new Font("Monospaced", Font.BOLD, 14));
+btnRanking.setBackground(CafeColors.MARROM_CLARO);
+btnRanking.setForeground(CafeColors.TEXTO_BRANCO);
+btnRanking.addActionListener(e -> mainUI.mostrarTela(Tela.RANKING));
+
+add(btnRanking);
+
