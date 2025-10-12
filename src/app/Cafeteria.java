@@ -1,19 +1,19 @@
 package app;
 
 import engine.Jogo;
+import view.MainUI;
 import javax.swing.SwingUtilities;
 
-/**
- * Classe principal para inicializar o aplicativo "Cafeteria JavaBeans".
- * Garante que a interface gráfica (Swing) inicie na Thread correta.
- */
 public class Cafeteria {
-
     public static void main(String[] args) {
-        // Usa SwingUtilities.invokeLater para garantir que a GUI seja
-        // criada e manipulada na Event Dispatch Thread (EDT).
         SwingUtilities.invokeLater(() -> {
+            // Cria o jogo (model)
             Jogo jogo = new Jogo();
+            
+            // Cria a UI (orquestrador) que injeta a si mesma no jogo
+            MainUI ui = new MainUI(jogo);
+            
+            // Inicia o jogo
             jogo.iniciar();
         });
     }
