@@ -7,12 +7,16 @@ package view;
 public enum Tela {
     INICIAL,
     JOGO,
+    CLIENTE_CHEGANDO,
     GAME_OVER,
     HISTORICO,
     DETALHES_CLIENTE,
+    BANCADA_DE_CRIACAO,
     PREPARO,
+    CARDAPIO,
     RECEITA,
     MENU_ADMIN,
+    RANKING,
     CONFIGURACOES,
     SOBRE
 }
