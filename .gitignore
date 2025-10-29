@@ -1,3 +1,47 @@
+# -------------------------------------------------------------------------
+# IGNORES ESPECÍFICOS DO PROJETO (Manter no topo)
+# -------------------------------------------------------------------------
 /build/
-
 historico_jogo.txt
+# -------------------------------------------------------------------------
+
+
+# -------------------------------------------------------------------------
+# ARQUIVOS DE BUILD E EXECUTÁVEIS DO JAVA (GERAL)
+# -------------------------------------------------------------------------
+*.class          # Arquivos de classe compilados
+*.jar            # Arquivos Java Archive
+*.war            # Arquivos Web Archive
+*.ear            # Arquivos Enterprise Archive
+
+# Pastas de saída (Output) do Maven e Gradle (se aplicável)
+/target/
+/out/
+
+
+# -------------------------------------------------------------------------
+# IGNORES DO NETBEANS (IDE)
+# -------------------------------------------------------------------------
+# Arquivos de configuração por usuário (manter no local)
+nbproject/private/
+*.nbattrs
+
+# -------------------------------------------------------------------------
+# IGNORES DO VS CODE (IDE)
+# -------------------------------------------------------------------------
+.vscode/          # Configurações do workspace do VS Code
+# Exceção para settings.json se o time concordar em compartilhar algumas regras
+#.vscode/settings.json
+
+# -------------------------------------------------------------------------
+# ARQUIVOS TEMPORÁRIOS E DO SISTEMA
+# -------------------------------------------------------------------------
+# Arquivos de log
+*.log
+/log/
+
+# Arquivos de backup e temporários comuns
+*~
+# Arquivos temporários do Windows
+Thumbs.db
+Desktop.ini
