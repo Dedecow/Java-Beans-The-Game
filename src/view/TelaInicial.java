@@ -58,6 +58,7 @@ public class TelaInicial extends JPanel {
         btnIniciar.setForeground(CafeColors.TEXTO_BRANCO);
         
         btnIniciar.addActionListener(e -> {
+            // Delega a navegação ao Jogo
             jogo.iniciarJogo(); 
         });
 

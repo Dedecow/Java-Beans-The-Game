@@ -31,6 +31,7 @@ public class TelaGameOver extends JPanel {
         btnReiniciar.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2)); 
         
         btnReiniciar.addActionListener(e -> {
+            // Delega a navegação ao Jogo
             jogo.reiniciarPartida();
         });
 

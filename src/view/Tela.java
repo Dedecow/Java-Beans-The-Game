@@ -14,5 +14,6 @@ public enum Tela {
     RECEITA,
     MENU_ADMIN,
     CONFIGURACOES,
+    ADICIONARRECEITA,
     SOBRE
 }
