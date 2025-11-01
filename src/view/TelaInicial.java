@@ -17,15 +17,14 @@ public class TelaInicial extends JPanel {
 
         this.setPreferredSize(new Dimension(LARGURA, ALTURA));
         this.setBackground(CafeColors.FUNDO_CAFE_ESCURO);
-        this.setLayout(new GridBagLayout()); 
+        this.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 0, 10, 0); 
-        gbc.gridx = 0; 
+        gbc.insets = new Insets(10, 0, 10, 0);
+        gbc.gridx = 0;
 
         // --- 1. Ícone / Logo ---
-        // (Código do Ícone, Título e Subtítulo permanece o mesmo)
-        JLabel lblIcone = new JLabel("☕"); 
+        JLabel lblIcone = new JLabel("☕");
         lblIcone.setFont(new Font("Monospaced", Font.PLAIN, 48));
         lblIcone.setForeground(CafeColors.TEXTO_BRANCO);
         gbc.gridy = 0; 
@@ -52,27 +51,40 @@ public class TelaInicial extends JPanel {
         btnIniciar.addActionListener(e -> jogo.iniciarJogo());
 
         gbc.gridy = 3; 
-        gbc.weighty = 0.5; // Empurra os botões para baixo
-        gbc.anchor = GridBagConstraints.PAGE_END; // Alinha ao fim da célula
-        gbc.ipadx = 50; 
-        gbc.ipady = 10; 
+        gbc.weighty = 0.5;
+        gbc.anchor = GridBagConstraints.PAGE_END;
+        gbc.ipadx = 50;
+        gbc.ipady = 10;
         this.add(btnIniciar, gbc);
         
-        // --- 3. NOVO BOTÃO "RANKING" ---
+        // --- 3. Painel de Botões Inferiores (Ranking e Configurações) ---
+        JPanel painelBotoesExtras = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        painelBotoesExtras.setOpaque(false); // Transparente
+
+        // Botão "Ranking" (Existente)
         JButton btnRanking = new JButton("🏆 Ranking");
         btnRanking.setFont(new Font("Monospaced", Font.BOLD, 16));
         btnRanking.setFocusable(false);
-        btnRanking.setBackground(CafeColors.BOTAO_AVISO); // Cor de aviso (dourado)
+        btnRanking.setBackground(CafeColors.BOTAO_AVISO);
         btnRanking.setForeground(CafeColors.TEXTO_PRETO);
-        
-        // Ação: Delega a navegação ao Jogo
         btnRanking.addActionListener(e -> jogo.navegarPara(Tela.RANKING));
+        painelBotoesExtras.add(btnRanking);
+        
+        // --- NOVO BOTÃO "CONFIGURAÇÕES" ---
+        JButton btnConfig = new JButton("⚙️ Configurações");
+        btnConfig.setFont(new Font("Monospaced", Font.BOLD, 16));
+        btnConfig.setFocusable(false);
+        btnConfig.setBackground(CafeColors.BOTAO_INFO); // Cor de informação [cite: 12]
+        btnConfig.setForeground(CafeColors.TEXTO_BRANCO);
+        btnConfig.addActionListener(e -> jogo.navegarPara(Tela.CONFIGURACOES)); // Navega para a nova tela [cite: 199, 245, 446, 54]
+        painelBotoesExtras.add(btnConfig);
 
-        gbc.gridy = 4; // Posição abaixo do Iniciar
+        // Adiciona o painel de botões extras abaixo do botão Iniciar
+        gbc.gridy = 4;
         gbc.weighty = 0;
-        gbc.anchor = GridBagConstraints.CENTER; // Reseta o alinhamento
-        gbc.ipadx = 30; 
-        gbc.ipady = 5; 
-        this.add(btnRanking, gbc);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.ipadx = 0;  // Reseta padding do GBC
+        gbc.ipady = 0;  // Reseta padding do GBC
+        this.add(painelBotoesExtras, gbc);
     }
 }

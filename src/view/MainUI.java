@@ -35,17 +35,18 @@ public class MainUI extends JFrame {
         atualizarTitulo(tipoTela);
     }
 
-    // ATUALIZAÇÃO AQUI: Adicionado o case para a nova tela
     private JPanel criarTela(Tela tipoTela) {
-        return switch (tipoTela) {
+        return switch (tipoTela) { 
             case INICIAL -> new TelaInicial(jogo);
             case JOGO -> new TelaJogo(jogo);
-            case GAME_OVER -> new TelaGameOver(jogo);
+            case GAME_OVER -> new TelaGameOver(jogo); 
             case RECEITA -> new TelaReceita(jogo);
             case PREPARO -> new TelaPreparo(jogo);
+            case RANKING -> new TelaRanking(jogo); 
+            case DETALHES_CLIENTE -> new TelaDetalhesCliente(jogo); 
             
             // --- NOVA LINHA ADICIONADA ---
-            case RANKING -> new TelaRanking(jogo); // Agora o MainUI sabe criar a tela
+            case CONFIGURACOES -> new TelaConfiguracoes(jogo); // Agora o MainUI sabe criar a tela
             
             // Default fallback
             default -> new TelaInicial(jogo);

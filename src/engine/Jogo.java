@@ -161,7 +161,12 @@ public class Jogo {
     // ============================================================
     // MÉTODOS DE APOIO ÀS TELAS
     // ============================================================
-
+    public MenuItem getPedidoClienteAtual() {
+        if (this.clienteAtual != null) {
+            return this.clienteAtual.getPedido();
+        }
+        return null;
+    }
     /** Retorna o cardápio completo (todas as receitas disponíveis). */
     public List<MenuItem> getCardapio() {
         try {

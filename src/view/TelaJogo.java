@@ -40,15 +40,15 @@ public class TelaJogo extends JPanel {
     /** Define o layout e aparência geral da tela. */
     private void configurarLayoutBase() {
         setPreferredSize(new Dimension(LARGURA, ALTURA));
-        setBackground(CafeColors.FUNDO_BEGE);
-        setLayout(new BorderLayout(20, 20));
+        setBackground(CafeColors.FUNDO_BEGE); 
+        setLayout(new BorderLayout(20, 20)); // Adicionado espaçamento
     }
 
     /** Monta os painéis da tela: Info (Norte), Ações (Centro) e Rodapé (Sul). */
     private void montarComponentes() {
         add(criarPainelInfo(), BorderLayout.NORTH);
         add(criarPainelAcoes(), BorderLayout.CENTER);
-        add(criarPainelRodape(), BorderLayout.SOUTH);
+        add(criarPainelRodape(), BorderLayout.SOUTH); // Método de rodapé refatorado
     }
 
     // ============================================================
@@ -74,8 +74,8 @@ public class TelaJogo extends JPanel {
     /** Cria o painel central com as ações principais do jogo. */
     private JPanel criarPainelAcoes() {
         JPanel painel = new JPanel(new GridLayout(1, 2, 30, 0));
-        painel.setOpaque(false);
-        painel.setBorder(BorderFactory.createEmptyBorder(40, 80, 40, 80));
+        painel.setOpaque(false); // Fundo transparente
+        painel.setBorder(BorderFactory.createEmptyBorder(40, 80, 40, 80)); // Padding
 
         JButton btnReceitas = criarBotao(
             "📖 Ver Receitas",
@@ -94,15 +94,26 @@ public class TelaJogo extends JPanel {
         return painel;
     }
 
-    /** Cria o painel inferior com o botão de finalizar o jogo. */
+    /** Cria o painel inferior com botões de navegação/fim. */
     private JPanel criarPainelRodape() {
-        JPanel painel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        painel.setOpaque(false);
+        JPanel painel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5)); // Espaçamento
+        painel.setOpaque(false); // Fundo transparente
+
+        // --- NOVO BOTÃO "DETALHES" ---
+        JButton btnDetalhes = criarBotao(
+            "📋 Detalhes",
+            CafeColors.MARROM_MEIO, // Cor neutra [cite: 8]
+            e -> jogo.navegarPara(Tela.DETALHES_CLIENTE)
+        );
+
+        // Botão "Finalizar Jogo" (Existente)
         JButton btnFinalizar = criarBotao(
             "⏹ Finalizar Jogo",
             CafeColors.BOTAO_ERRO,
             e -> jogo.finalizarJogo()
         );
+        
+        painel.add(btnDetalhes); // Adiciona o novo botão
         painel.add(btnFinalizar);
         return painel;
     }
@@ -133,7 +144,7 @@ public class TelaJogo extends JPanel {
         botao.setBackground(corFundo);
         botao.setForeground(CafeColors.TEXTO_BRANCO);
         botao.setFocusable(false);
-        botao.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        botao.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Padding
         botao.addActionListener(acao);
         return botao;
     }
