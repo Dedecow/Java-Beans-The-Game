@@ -2,36 +2,49 @@ package engine;
 
 import data.model.Historico;
 import data.persistence.IPersistencia;
-// Importa a implementação específica que será usada
 import data.persistence.HistoricoDAOSQLite; 
 import view.MainUI; 
 import view.Tela;
 import data.model.Cliente;
 import data.setup.ClienteGen;
 import data.model.Menu.Ingrediente;
+import data.model.Menu.Cardapio;
 import data.model.Menu.MenuItem;
 import java.util.Arrays;
+import java.util.List;
 
+/**
+ * Classe central do motor do jogo.
+ * 
+ * Responsável por controlar o fluxo principal do gameplay,
+ * coordenar a pontuação, clientes, navegação de telas e persistência.
+ */
 public class Jogo {
     private int pontuacaoAtual;
     private Cliente clienteAtual; 
-    private final IPersistencia persistencia; // Continua genérico
+    private final IPersistencia persistencia;
     private MainUI orquestrador;
     private boolean jogoAtivo;
 
+    // ============================================================
+    // CONSTRUTOR
+    // ============================================================
     public Jogo() {
-        // --- AQUI ESTÁ A ARQUITETURA SIMPLES ---
-        // O Jogo decide qual persistência usar.
+        // Arquitetura limpa: o motor decide qual persistência usar.
         this.persistencia = new HistoricoDAOSQLite(); 
-        // --- FIM DA MUDANÇA ---
-        
         this.pontuacaoAtual = 0;
         this.jogoAtivo = false;
+
+        // Força o carregamento do cardápio
+        Cardapio.getMenu();
+
+        // Gera o primeiro cliente
         this.clienteAtual = ClienteGen.gerarClienteRandom(); 
     }
     
-    // O restante do arquivo está 100% correto
-    // com todas as correções de bugs que fizemos.
+    // ============================================================
+    // CONFIGURAÇÃO E CICLO DE VIDA
+    // ============================================================
 
     public void setUI(MainUI orquestrador) {
         this.orquestrador = orquestrador;
@@ -75,7 +88,11 @@ public class Jogo {
             orquestrador.mostrarTela(tela);
         }
     }
-    
+
+    // ============================================================
+    // MECÂNICA DO JOGO
+    // ============================================================
+
     public void entregarPedido(Ingrediente[] bandeja) {
         if (!jogoAtivo) return;
         MenuItem pedidoCorreto = clienteAtual.getPedido();
@@ -83,10 +100,8 @@ public class Jogo {
         if (pedidoCorreto == null) {
             System.err.println("❌ Jogo: Cliente " + clienteAtual.getNome() + " está sem pedido!");
             registrarPontuacao(false);
-            
-            // Corrige o fluxo para pegar um novo cliente mesmo se o anterior falhar
             this.clienteAtual = ClienteGen.gerarClienteRandom();
-            navegarPara(Tela.JOGO); // Volta para a tela de jogo
+            navegarPara(Tela.JOGO);
             return; 
         }
         
@@ -100,22 +115,22 @@ public class Jogo {
 
     private boolean compararReceitas(Ingrediente[] bandeja, Ingrediente[] receitaCorreta) {
         if (bandeja.length != receitaCorreta.length) {
-            System.out.println("🎮 Jogo: Errou (Quantidade de ingredientes errada)");
+            System.out.println("🎮 Jogo: Errou (quantidade de ingredientes errada)");
             return false;
         }
-        String[] nomesBandeja = new String[bandeja.length];
-        for(int i = 0; i < bandeja.length; i++) {
-            nomesBandeja[i] = bandeja[i].getName();
-        }
-        String[] nomesReceita = new String[receitaCorreta.length];
-        for(int i = 0; i < receitaCorreta.length; i++) {
-            nomesReceita[i] = receitaCorreta[i].getName();
-        }
-        Arrays.sort(nomesBandeja);
-        Arrays.sort(nomesReceita);
+
+        String[] nomesBandeja = Arrays.stream(bandeja)
+                .map(Ingrediente::getName)
+                .sorted()
+                .toArray(String[]::new);
+        String[] nomesReceita = Arrays.stream(receitaCorreta)
+                .map(Ingrediente::getName)
+                .sorted()
+                .toArray(String[]::new);
+
         boolean acertou = Arrays.equals(nomesBandeja, nomesReceita);
         if (!acertou) {
-            System.out.println("🎮 Jogo: Errou (Ingredientes errados)");
+            System.out.println("🎮 Jogo: Errou (ingredientes errados)");
         }
         return acertou;
     }
@@ -124,10 +139,10 @@ public class Jogo {
         if (!jogoAtivo) return;
         if (acertou) {
             pontuacaoAtual += 10;
-            System.out.println("🎮 Jogo: Pedido correto! +10 pontos");
+            System.out.println("🎮 Pedido correto! +10 pontos");
         } else {
             pontuacaoAtual = Math.max(0, pontuacaoAtual - 5);
-            System.out.println("🎮 Jogo: Pedido errado! -5 pontos");
+            System.out.println("🎮 Pedido errado! -5 pontos");
         }
         if (orquestrador != null) {
             orquestrador.atualizarStatus("Em Jogo | Pontuação: " + pontuacaoAtual);
@@ -142,23 +157,45 @@ public class Jogo {
             System.err.println("❌ Jogo: Erro ao salvar histórico: " + e.getMessage());
         }
     }
-    
+
+    // ============================================================
+    // MÉTODOS DE APOIO ÀS TELAS
+    // ============================================================
+
+    /** Retorna o cardápio completo (todas as receitas disponíveis). */
+    public List<MenuItem> getCardapio() {
+        try {
+            return Cardapio.getMenu();
+        } catch (Exception e) {
+            System.err.println("⚠️ Erro ao obter cardápio: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    /** Retorna a lista de ingredientes disponíveis. */
+    public List<Ingrediente> getTodosIngredientes() {
+        try {
+            return Cardapio.getIngredientes();
+        } catch (Exception e) {
+            System.err.println("⚠️ Erro ao obter ingredientes: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    // ============================================================
+    // GETTERS GERAIS
+    // ============================================================
+
     public int getPontuacao() {
         return pontuacaoAtual;
     }
     
     public String getClienteAtual() {
-        if (this.clienteAtual != null) {
-            return this.clienteAtual.getNome();
-        }
-        return "Nenhum cliente";
+        return (clienteAtual != null) ? clienteAtual.getNome() : "Nenhum cliente";
     }
 
     public String getFraseClienteAtual() {
-        if (this.clienteAtual != null) {
-            return this.clienteAtual.comportamento();
-        }
-        return "Bem-vindo!";
+        return (clienteAtual != null) ? clienteAtual.comportamento() : "Bem-vindo!";
     }
     
     public boolean isJogoAtivo() {
@@ -169,7 +206,7 @@ public class Jogo {
         try {
             return persistencia.lerHistorico();
         } catch (Exception e) {
-            System.err.println("❌ Jogo: Erro ao ler histórico: " + e.getMessage());
+            System.err.println("❌ Erro ao ler histórico: " + e.getMessage());
             return new Historico[0];
         }
     }

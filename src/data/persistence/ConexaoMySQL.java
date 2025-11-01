@@ -1,4 +1,4 @@
-    package data.connection;
+    package data.persistence;
 
     import java.sql.Connection;
     import java.sql.SQLException;
