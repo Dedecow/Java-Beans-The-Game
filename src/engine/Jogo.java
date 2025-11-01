@@ -15,8 +15,7 @@ import java.util.List;
 
 /**
  * Classe central do motor do jogo.
- * 
- * Responsável por controlar o fluxo principal do gameplay,
+ * * Responsável por controlar o fluxo principal do gameplay,
  * coordenar a pontuação, clientes, navegação de telas e persistência.
  */
 public class Jogo {
@@ -30,15 +29,10 @@ public class Jogo {
     // CONSTRUTOR
     // ============================================================
     public Jogo() {
-        // Arquitetura limpa: o motor decide qual persistência usar.
         this.persistencia = new HistoricoDAOSQLite(); 
         this.pontuacaoAtual = 0;
         this.jogoAtivo = false;
-
-        // Força o carregamento do cardápio
-        Cardapio.getMenu();
-
-        // Gera o primeiro cliente
+        Cardapio.getMenu(); // Força o carregamento do cardápio
         this.clienteAtual = ClienteGen.gerarClienteRandom(); 
     }
     
@@ -62,7 +56,10 @@ public class Jogo {
         this.pontuacaoAtual = 0;
         this.jogoAtivo = true;
         this.clienteAtual = ClienteGen.gerarClienteRandom();
-        orquestrador.mostrarTela(Tela.JOGO);
+        
+        // Navega para a tela de transição
+        orquestrador.mostrarTela(Tela.CLIENTE_CHEGANDO);
+
         System.out.println("🎮 Jogo: Partida iniciada. Novo cliente: " + clienteAtual.getNome());
     }
 
@@ -101,7 +98,7 @@ public class Jogo {
             System.err.println("❌ Jogo: Cliente " + clienteAtual.getNome() + " está sem pedido!");
             registrarPontuacao(false);
             this.clienteAtual = ClienteGen.gerarClienteRandom();
-            navegarPara(Tela.JOGO);
+            navegarPara(Tela.CLIENTE_CHEGANDO);
             return; 
         }
         
@@ -110,7 +107,7 @@ public class Jogo {
         registrarPontuacao(acertou);
         this.clienteAtual = ClienteGen.gerarClienteRandom();
         System.out.println("🎮 Jogo: Próximo cliente: " + clienteAtual.getNome());
-        navegarPara(Tela.JOGO);
+        navegarPara(Tela.CLIENTE_CHEGANDO);
     }
 
     private boolean compararReceitas(Ingrediente[] bandeja, Ingrediente[] receitaCorreta) {
@@ -167,7 +164,7 @@ public class Jogo {
         }
         return null;
     }
-    /** Retorna o cardápio completo (todas as receitas disponíveis). */
+
     public List<MenuItem> getCardapio() {
         try {
             return Cardapio.getMenu();
@@ -177,7 +174,6 @@ public class Jogo {
         }
     }
 
-    /** Retorna a lista de ingredientes disponíveis. */
     public List<Ingrediente> getTodosIngredientes() {
         try {
             return Cardapio.getIngredientes();
