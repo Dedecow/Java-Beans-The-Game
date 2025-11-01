@@ -7,11 +7,12 @@ import java.awt.*;
 
 /**
  * Tela Sobre — exibe informações sobre o projeto, versão e créditos.
- * MODIFICADO: Agora exibe a imagem de agradecimento.
+ * MODIFICADO: Agora exibe a imagem de agradecimento e implementa Atualizavel.
  */
-public class TelaSobre extends JPanel {
+public class TelaSobre extends JPanel implements MainUI.Atualizavel { // Implementa a interface
 
     private final Jogo jogo;
+    private static final int LARGURA_MAX_IMAGEM = 480;
 
     public TelaSobre(Jogo jogo) {
         this.jogo = jogo;
@@ -32,14 +33,14 @@ public class TelaSobre extends JPanel {
             Image originalImage = originalIcon.getImage();
 
             int originalLargura = originalImage.getWidth(null);
-            int originalAltura = originalImage.getHeight(null);
-
+            
             // Se for menor que o alvo, ou se o alvo for -1, usa original
             if (larguraAlvo == -1 || originalLargura <= larguraAlvo) {
                 return originalIcon;
             }
 
             // Calcula nova altura mantendo a proporção
+            int originalAltura = originalImage.getHeight(null);
             int novaAltura = (originalAltura * larguraAlvo) / originalLargura;
 
             Image imagemEscalada = originalImage.getScaledInstance(larguraAlvo, novaAltura, Image.SCALE_SMOOTH);
@@ -81,6 +82,7 @@ public class TelaSobre extends JPanel {
         JPanel rodape = new JPanel(new FlowLayout(FlowLayout.CENTER));
         rodape.setOpaque(false);
         
+        // Botão de retorno ao Menu Inicial
         JButton btnVoltar = criarBotao("⬅ Voltar ao Menu", CafeColors.MARROM_ESCURO,
             e -> jogo.navegarPara(Tela.INICIAL));
         
@@ -98,8 +100,7 @@ public class TelaSobre extends JPanel {
         ));
 
         // --- NOVO: Adiciona a imagem de agradecimento ---
-        // Largura 500 (Tela de 600 - bordas 40+40 - bordas painel 20+20 = 500)
-        ImageIcon imgAgradecimento = carregarIcone("assets/fotos/agradecimento.png", 480);
+        ImageIcon imgAgradecimento = carregarIcone("assets/fotos/agradecimento.png", LARGURA_MAX_IMAGEM);
         if (imgAgradecimento != null) {
             JLabel lblImagem = new JLabel(imgAgradecimento);
             lblImagem.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -109,12 +110,10 @@ public class TelaSobre extends JPanel {
         // ---------------------------------------------
 
         String[] informacoes = {
-            "🏪 Java Beans - Cafeteria Educacional",
+            "🏪 Java Beans - The Game",
             "",
             "📚 Propósito:",
-            "• Simulador educativo de gerenciamento de cafeteria",
-            "• Desenvolvido para aprendizado de Java Swing",
-            "• Arquitetura limpa e modularizada",
+            "• Simulador  de jogo Java, tema: cafeteria",
             "",
             "⚙️ Tecnologias:",
             "• Java 17+ • Swing • SQLite • JDBC",
@@ -126,9 +125,9 @@ public class TelaSobre extends JPanel {
             "• Sistema de pontuação e ranking",
             "• Persistência em banco de dados",
             "",
-            "👨‍💻 Desenvolvido por: Equipe Java Beans",
-            "📅 Versão: 1.0.0",
-            "🎮 Educativo - Fins de Aprendizado"
+            "👨‍💻 Disciplina Programação de Soluções Computacionais",
+            "📅 Versão: 2.0.0",
+            "🎮 Avaliação- Trabalho A3 - Ânima"
         };
 
         for (String info : informacoes) {
@@ -158,7 +157,8 @@ public class TelaSobre extends JPanel {
         return botao;
     }
 
+    @Override
     public void atualizarInfo() {
-        // Informações estáticas, não precisa atualizar
+        // Informações estáticas, não precisam ser atualizadas dinamicamente.
     }
 }

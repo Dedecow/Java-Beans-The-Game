@@ -22,6 +22,27 @@ public class TelaGameOver extends JPanel {
         
         this.setLayout(null); 
         
+        int btnLargura = 200;
+        int btnAltura = 40;
+        int btnCreditosAltura = 30; // Altura um pouco menor para diferenciar
+
+        // --- NOVO BOTÃO: SOBRE/CRÉDITOS ---
+        JButton btnCreditos = new JButton("SOBRE / CRÉDITOS");
+        btnCreditos.setFont(new Font("Monospaced", Font.BOLD, 14));
+        btnCreditos.setFocusable(false);
+        btnCreditos.setBackground(CafeColors.BOTAO_INFO); // Cor de informação
+        btnCreditos.setForeground(CafeColors.TEXTO_BRANCO);
+        btnCreditos.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2)); 
+
+        btnCreditos.addActionListener(e -> {
+            // Delega a navegação para a tela SOBRE
+            jogo.navegarPara(Tela.SOBRE);
+        });
+        
+        // Posição: 50 pixels acima do Reiniciar
+        btnCreditos.setBounds((LARGURA - btnLargura) / 2, ALTURA - 80 - btnCreditosAltura - 15, btnLargura, btnCreditosAltura);
+        this.add(btnCreditos);
+        
         // Exemplo: Botão estilizado usando CafeColors
         JButton btnReiniciar = new JButton("MAIS CAFÉ ?");
         btnReiniciar.setFont(new Font("Monospaced", Font.BOLD, 16));
@@ -35,8 +56,7 @@ public class TelaGameOver extends JPanel {
             jogo.reiniciarPartida();
         });
 
-        int btnLargura = 200;
-        int btnAltura = 40;
+        // Posição ajustada para ficar abaixo do novo botão de Créditos
         btnReiniciar.setBounds((LARGURA - btnLargura) / 2, ALTURA - 80, btnLargura, btnAltura);
         this.add(btnReiniciar);
     }
