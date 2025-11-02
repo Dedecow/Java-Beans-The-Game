@@ -3,6 +3,7 @@ package engine;
 import data.model.Historico;
 import data.persistence.IPersistencia;
 import data.persistence.HistoricoDAOSQLite; 
+import data.persistence.HistoricoDAOMySQL; // <<< NOVO IMPORT
 import view.MainUI; 
 import view.Tela;
 import data.model.Cliente;
@@ -29,7 +30,13 @@ public class Jogo {
     // CONSTRUTOR
     // ============================================================
     public Jogo() {
-        this.persistencia = new HistoricoDAOSQLite(); 
+        // -------------------------------------------------------------------
+        // MUDANÇA ESSENCIAL: AGORA USA O NOVO DAO MYSQL
+        // Isso elimina o erro de driver SQLite, pois não será mais inicializado.
+        // -------------------------------------------------------------------
+        this.persistencia = new HistoricoDAOMySQL(); // <<< AQUI ESTÁ A CORREÇÃO
+        // -------------------------------------------------------------------
+        
         this.pontuacaoAtual = 0;
         this.jogoAtivo = false;
         Cardapio.getMenu(); // Força o carregamento do cardápio
