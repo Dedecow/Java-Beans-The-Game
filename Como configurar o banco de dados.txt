@@ -1,0 +1,48 @@
+Como configurar o banco de dados para NETBEANS em 4 passos.
+
+
+
+
+PASSO 1: Criar o Banco de Dados (Schema):
+
+O código-fonte está programado para procurar um banco de dados (schema) chamado javabeans_game. Você precisa criá-lo manualmente.
+
+Abra o MySQL Workbench.
+
+Execute o seguinte comando SQL: create database javabeans_game;
+
+
+PASSO 2: Baixar e Organizar o Driver (Conector/J)
+O NetBeans precisa do arquivo .jar que permite ao Java se comunicar com o MySQL.
+
+Download: Baixe o "Connector/J" do site oficial (ex: https://dev.mysql.com/downloads/connector/j/).
+
+Organização: Crie uma pasta centralizada para seus drivers (ex: C:\Java-libs\jdbc-conectors).
+
+Mover: Coloque o arquivo .jar do driver nesta pasta (ex: mysql-connector-java-5.1.47.jar).
+
+PASSO 3: Adicionar o Driver ao NetBeans
+
+O projeto precisa saber onde o .jar está localizado.
+
+No NetBeans, clique com o botão direito na pasta Libraries do seu projeto.
+
+Selecione Add JAR/Folder....
+
+Navegue até o local do seu driver (ex: C:\Java-libs\jdbc-conectors\mysql-connector-java-5.1.47.jar) e adicione-o.
+
+PASSO 4: Criar seu Arquivo de Credenciais (config.properties)
+SENHAS: o arquivo config.properties é ignorado pelo .gitignore. Você deve criá-lo manualmente.
+
+Localização: Vá para a pasta raiz do projeto (a mesma que contém src, lib, etc.).
+
+Criar Arquivo: Crie um novo arquivo chamado exatamente config.properties. (No PowerShell, o comando é: New-Item config.properties)
+
+Conteúdo: Cole o texto abaixo no arquivo, alterando db.user e db.pass para suas credenciais locais do MySQL.
+
+Properties
+
+# Configuração do Banco de Dados MySQL
+db.url=jdbc:mysql://localhost:3306/javabeans_game?useSSL=false
+db.user=seu_usuario_mysql
+db.pass=sua_senha_mysql

@@ -4,13 +4,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Properties; // Import necessário
+import java.sql.Statement;
+import java.util.Properties;
 
-/**
- * Gerencia a conexão com o banco de dados MySQL, lendo as
- * credenciais de um arquivo 'config.properties' externo.
- */
 public class ConexaoMySQL {
 
     private static final String DRIVER = "com.mysql.jdbc.Driver";
@@ -18,7 +17,6 @@ public class ConexaoMySQL {
     private static final String USUARIO;
     private static final String SENHA;
 
-    // Bloco estático: Roda UMA VEZ quando a classe é carregada
     static {
         Properties props = new Properties();
         try (FileInputStream fis = new FileInputStream("config.properties")) {
@@ -34,41 +32,56 @@ public class ConexaoMySQL {
             
         } catch (IOException e) {
             System.err.println("❌ ERRO FATAL: Não foi possível ler o 'config.properties'");
-            System.err.println("Certifique-se que o arquivo 'config.properties' está na raiz do projeto (C:\\...\\Java-Beans-The-Game)");
             e.printStackTrace();
-            
-            // -------------------------------------------------------------------
-            // ESTA É A CORREÇÃO: A classe correta é 'ExceptionInInitializerError'
-            // -------------------------------------------------------------------
-            throw new ExceptionInInitializerError(e);
-            // -------------------------------------------------------------------
+            throw new DBException("Falha ao carregar config.properties", e);
         }
     }
 
-    /**
-     * Tenta estabelecer e retornar uma nova conexão com o banco de dados.
-     */
-    public static Connection conectar() throws SQLException {
+    public static Connection conectar() {
         try {
             Class.forName(DRIVER);
             return DriverManager.getConnection(URL_BD, USUARIO, SENHA);
         } catch (ClassNotFoundException e) {
-            throw new SQLException("Driver MySQL JDBC não encontrado. Inclua o JAR no classpath.", e);
+            throw new DBException("Driver MySQL JDBC não encontrado. Inclua o JAR no classpath.", e);
+        } catch (SQLException e) {
+            throw new DBException("Erro ao conectar ao banco de dados.", e);
+        }
+    }
+
+    public static void desconectar(Connection conn) {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                System.err.println("Erro ao fechar Connection: " + e.getMessage());
+            }
+        }
+    }
+
+
+    public static void desconectar(Statement stmt) {
+        if (stmt != null) {
+            try {
+                stmt.close();
+            } catch (SQLException e) {
+                System.err.println("Erro ao fechar Statement: " + e.getMessage());
+            }
         }
     }
     
-    /**
-     * O método main continua funcionando para testes
-     */
-    public static void main(String[] args) {
-        System.out.println("Tentando conectar com credenciais do 'config.properties'...");
-        try (Connection testeConexao = conectar()) {
-            if (testeConexao != null) {
-                System.out.println("✅ TESTE BEM-SUCEDIDO: Conexão MySQL estabelecida com sucesso!");
+
+    public static void desconectar(PreparedStatement pstmt) {
+        desconectar((Statement) pstmt);
+    }
+
+
+    public static void desconectar(ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                System.err.println("Erro ao fechar ResultSet: " + e.getMessage());
             }
-        } catch (SQLException e) {
-            System.err.println("❌ TESTE FALHOU: Erro ao conectar ao MySQL.");
-            e.printStackTrace();
         }
     }
 }
