@@ -3,6 +3,7 @@ package engine;
 import data.model.Historico;
 import data.persistence.IPersistencia;
 import data.persistence.HistoricoDAOMySQL;
+import data.persistence.DBException; 
 import view.MainUI; 
 import view.Tela;
 import data.model.Cliente;
@@ -12,26 +13,39 @@ import data.model.Menu.Cardapio;
 import data.model.Menu.MenuItem;
 import java.util.Arrays;
 import java.util.List;
+import javax.swing.JOptionPane; 
 
 /**
- * Classe central do motor do jogo.
- * Responsável por controlar o fluxo principal do gameplay,
- * coordenar a pontuação, clientes, navegação de telas e persistência.
- * CORRIGIDO: Agora armazena e utiliza o nome do jogador real.
+ * REVISÃO: Lógica de inicialização da persistência movida para um
+ * método helper (inicializarPersistencia) para resolver erro de 
+ * compilação "variable might already have been assigned" em 'final'.
  */
 public class Jogo {
     private int pontuacaoAtual;
     private Cliente clienteAtual; 
-    private final IPersistencia persistencia;
+    
+    // A persistência continua final, o que é uma boa prática
+    private final IPersistencia persistencia; 
+    
     private MainUI orquestrador;
     private boolean jogoAtivo;
-    private String nomeJogador; // NOVO: Nome do jogador real
+    private String nomeJogador; 
 
     // ============================================================
     // CONSTRUTOR
     // ============================================================
+    
+    /**
+     * CONSTRUTOR CORRIGIDO
+     * Agora chama um método helper para inicializar a variável 'final'.
+     * Isso garante que ela seja atribuída apenas UMA vez, 
+     * resolvendo o erro de compilação.
+     */
     public Jogo() {
-        this.persistencia = new HistoricoDAOMySQL();
+        // MUDANÇA: A lógica de conexão foi movida para um método separado.
+        this.persistencia = inicializarPersistencia(); 
+        
+        // O resto do jogo é inicializado normalmente
         this.pontuacaoAtual = 0;
         this.jogoAtivo = false;
         this.nomeJogador = "Barista"; // Valor padrão
@@ -40,7 +54,46 @@ public class Jogo {
     }
     
     // ============================================================
-    // CONFIGURAÇÃO E CICLO DE VIDA
+    // MÉTODO DE INICIALIZAÇÃO (NOVO)
+    // ============================================================
+
+    /**
+     * NOVO MÉTODO HELPER
+     * Tenta inicializar a persistência.
+     * Esta abordagem resolve o erro de compilação "variable might already
+     * have been assigned" da variável 'final'.
+     * @return Uma instância de IPersistencia (DAO) ou null se a conexão falhar.
+     */
+    private IPersistencia inicializarPersistencia() {
+        try {
+            System.out.println("...Tentando conectar ao banco de dados...");
+            // Se o banco estiver offline (como no seu print), 
+            // a DBException será lançada AQUI.
+            IPersistencia dao = new HistoricoDAOMySQL(); 
+            
+            System.out.println("✅ Conexão com banco de dados estabelecida.");
+            return dao;
+            
+        } catch (DBException e) {
+            // Se a exceção ocorrer, pulamos para cá.
+            System.err.println("❌ ERRO FATAL DE BANCO DE DADOS: Não foi possível conectar.");
+            e.printStackTrace(); // Mostra o erro completo no console
+            
+            // Avisa o usuário de forma amigável
+            JOptionPane.showMessageDialog(null, 
+                "Não foi possível conectar ao banco de dados.\n" +
+                "O jogo funcionará normalmente, mas o histórico de pontuação\n" +
+                "não poderá ser salvo ou lido.\n\n" +
+                "Causa: " + e.getMessage(), 
+                "Erro de Conexão", 
+                JOptionPane.ERROR_MESSAGE);
+            
+            return null; // Retorna nulo para o modo "offline"
+        }
+    }
+    
+    // ============================================================
+    // CONFIGURAÇÃO E CICLO DE VIDA (Sem alterações)
     // ============================================================
 
     public void setUI(MainUI orquestrador) {
@@ -51,14 +104,12 @@ public class Jogo {
         System.out.println("🎮 Jogo: Motor iniciado");
     }
     
-    // MÉTODO MODIFICADO: Agora recebe o nome do jogador
     public void iniciarJogo(String nomeJogador) {
         if (orquestrador == null) {
             System.err.println("❌ Jogo: Orquestrador não definido!");
             return;
         }
         
-        // CORREÇÃO: Salva o nome do jogador
         this.nomeJogador = (nomeJogador != null && !nomeJogador.trim().isEmpty()) 
             ? nomeJogador.trim() : "Barista";
         
@@ -66,23 +117,20 @@ public class Jogo {
         this.jogoAtivo = true;
         this.clienteAtual = ClienteGen.gerarClienteRandom();
         
-        // Navega para a tela de transição
         orquestrador.mostrarTela(Tela.CLIENTE_CHEGANDO);
 
         System.out.println("🎮 Jogo: Partida iniciada. Jogador: " + this.nomeJogador + 
                          " | Cliente: " + clienteAtual.getNome());
     }
 
-    // MÉTODO LEGADO (para compatibilidade)
     public void iniciarJogo() {
-        iniciarJogo("Barista"); // Usa valor padrão
+        iniciarJogo("Barista"); 
     }
 
     public void finalizarJogo() {
         if (orquestrador == null) return;
         this.jogoAtivo = false;
         
-        // CORREÇÃO: Salva o nome do JOGADOR, não do cliente NPC
         salvarHistorico(this.nomeJogador);
         
         orquestrador.mostrarTela(Tela.GAME_OVER);
@@ -106,7 +154,7 @@ public class Jogo {
     }
 
     // ============================================================
-    // MECÂNICA DO JOGO
+    // MECÂNICA DO JOGO (Sem alterações)
     // ============================================================
 
     public void entregarPedido(Ingrediente[] bandeja) {
@@ -166,19 +214,28 @@ public class Jogo {
         }
     }
     
-    // CORREÇÃO: Método agora recebe nomeJogador explicitamente
+    /**
+     * MÉTODO MODIFICADO
+     * Agora verifica se a persistência é nula antes de tentar salvar.
+     */
     private void salvarHistorico(String nomeJogador) {
+        if (persistencia == null) {
+            System.err.println("⚠️ Jogo: Persistência nula. Pulando salvamento de histórico.");
+            return;
+        }
+        
         try {
             Historico historico = new Historico(nomeJogador, pontuacaoAtual);
             persistencia.salvar(historico);
             System.out.println("✅ Histórico salvo para jogador: " + nomeJogador);
-        } catch (Exception e) {
+        
+        } catch (DBException e) { 
             System.err.println("❌ Jogo: Erro ao salvar histórico: " + e.getMessage());
         }
     }
 
     // ============================================================
-    // MÉTODOS DE APOIO ÀS TELAS
+    // MÉTODOS DE APOIO ÀS TELAS (Sem alterações)
     // ============================================================
     public MenuItem getPedidoClienteAtual() {
         if (this.clienteAtual != null) {
@@ -206,7 +263,7 @@ public class Jogo {
     }
 
     // ============================================================
-    // GETTERS GERAIS
+    // GETTERS GERAIS (Sem alterações)
     // ============================================================
 
     public int getPontuacao() {
@@ -225,16 +282,24 @@ public class Jogo {
         return jogoAtivo;
     }
 
+    /**
+     * MÉTODO MODIFICADO
+     * Agora verifica se a persistência é nula antes de tentar ler.
+     */
     public Historico[] getRanking() {
+        if (persistencia == null) {
+            System.err.println("⚠️ Jogo: Persistência nula. Retornando ranking vazio.");
+            return new Historico[0]; 
+        }
+        
         try {
             return persistencia.lerHistorico();
-        } catch (Exception e) {
+        } catch (DBException e) { 
             System.err.println("❌ Erro ao ler histórico: " + e.getMessage());
-            return new Historico[0];
+            return new Historico[0]; 
         }
     }
     
-    // NOVO GETTER: Para obter o nome do jogador atual
     public String getNomeJogador() {
         return nomeJogador;
     }
