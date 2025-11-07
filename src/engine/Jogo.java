@@ -2,84 +2,66 @@ package engine;
 
 import data.model.Historico;
 import data.persistence.IPersistencia;
-import data.persistence.HistoricoDAOMySQL;
+import data.persistence.HistoricoDAOMySQL; 
 import data.persistence.DBException; 
+import data.persistence.CardapioDAOMySQL;
+import data.persistence.ClienteNpcDAO;
+import data.persistence.FrasesDAO;
 import view.MainUI; 
 import view.Tela;
 import data.model.Cliente;
 import data.setup.ClienteGen;
 import data.model.Menu.Ingrediente;
-import data.model.Menu.Cardapio;
 import data.model.Menu.MenuItem;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.JOptionPane; 
+import javax.swing.JOptionPane;
 
-/**
- * REVISÃO: Lógica de inicialização da persistência movida para um
- * método helper (inicializarPersistencia) para resolver erro de 
- * compilação "variable might already have been assigned" em 'final'.
- */
 public class Jogo {
     private int pontuacaoAtual;
-    private Cliente clienteAtual; 
-    
-    // A persistência continua final, o que é uma boa prática
-    private final IPersistencia persistencia; 
-    
+    private Cliente clienteAtual;
+    private final IPersistencia persistencia;
     private MainUI orquestrador;
     private boolean jogoAtivo;
     private String nomeJogador; 
 
+    // DAOs de Conteúdo
+    private final CardapioDAOMySQL cardapioDAO;
+    private final ClienteNpcDAO clienteNpcDAO;
+    private final FrasesDAO frasesDAO;
+
     // ============================================================
     // CONSTRUTOR
     // ============================================================
-    
-    /**
-     * CONSTRUTOR CORRIGIDO
-     * Agora chama um método helper para inicializar a variável 'final'.
-     * Isso garante que ela seja atribuída apenas UMA vez, 
-     * resolvendo o erro de compilação.
-     */
     public Jogo() {
-        // MUDANÇA: A lógica de conexão foi movida para um método separado.
         this.persistencia = inicializarPersistencia(); 
         
-        // O resto do jogo é inicializado normalmente
+        if (this.persistencia != null) {
+            this.cardapioDAO = new CardapioDAOMySQL();
+            this.clienteNpcDAO = new ClienteNpcDAO();
+            this.frasesDAO = new FrasesDAO();
+        } else {
+            this.cardapioDAO = null;
+            this.clienteNpcDAO = null;
+            this.frasesDAO = null;
+        }
+        
         this.pontuacaoAtual = 0;
         this.jogoAtivo = false;
-        this.nomeJogador = "Barista"; // Valor padrão
-        Cardapio.getMenu(); // Força o carregamento do cardápio
-        this.clienteAtual = ClienteGen.gerarClienteRandom(); 
+        this.nomeJogador = "Barista"; 
+        
+        this.clienteAtual = gerarProximoCliente();
     }
     
-    // ============================================================
-    // MÉTODO DE INICIALIZAÇÃO (NOVO)
-    // ============================================================
-
-    /**
-     * NOVO MÉTODO HELPER
-     * Tenta inicializar a persistência.
-     * Esta abordagem resolve o erro de compilação "variable might already
-     * have been assigned" da variável 'final'.
-     * @return Uma instância de IPersistencia (DAO) ou null se a conexão falhar.
-     */
     private IPersistencia inicializarPersistencia() {
         try {
             System.out.println("...Tentando conectar ao banco de dados...");
-            // Se o banco estiver offline (como no seu print), 
-            // a DBException será lançada AQUI.
             IPersistencia dao = new HistoricoDAOMySQL(); 
-            
             System.out.println("✅ Conexão com banco de dados estabelecida.");
             return dao;
-            
         } catch (DBException e) {
-            // Se a exceção ocorrer, pulamos para cá.
             System.err.println("❌ ERRO FATAL DE BANCO DE DADOS: Não foi possível conectar.");
-            e.printStackTrace(); // Mostra o erro completo no console
-            
-            // Avisa o usuário de forma amigável
+            e.printStackTrace();
             JOptionPane.showMessageDialog(null, 
                 "Não foi possível conectar ao banco de dados.\n" +
                 "O jogo funcionará normalmente, mas o histórico de pontuação\n" +
@@ -87,13 +69,12 @@ public class Jogo {
                 "Causa: " + e.getMessage(), 
                 "Erro de Conexão", 
                 JOptionPane.ERROR_MESSAGE);
-            
-            return null; // Retorna nulo para o modo "offline"
+            return null; 
         }
     }
     
     // ============================================================
-    // CONFIGURAÇÃO E CICLO DE VIDA (Sem alterações)
+    // MÉTODOS DE CICLO DE VIDA
     // ============================================================
 
     public void setUI(MainUI orquestrador) {
@@ -115,16 +96,12 @@ public class Jogo {
         
         this.pontuacaoAtual = 0;
         this.jogoAtivo = true;
-        this.clienteAtual = ClienteGen.gerarClienteRandom();
+        this.clienteAtual = gerarProximoCliente();
         
         orquestrador.mostrarTela(Tela.CLIENTE_CHEGANDO);
 
         System.out.println("🎮 Jogo: Partida iniciada. Jogador: " + this.nomeJogador + 
                          " | Cliente: " + clienteAtual.getNome());
-    }
-
-    public void iniciarJogo() {
-        iniciarJogo("Barista"); 
     }
 
     public void finalizarJogo() {
@@ -142,7 +119,7 @@ public class Jogo {
         if (orquestrador == null) return;
         this.pontuacaoAtual = 0;
         this.jogoAtivo = false;
-        this.clienteAtual = ClienteGen.gerarClienteRandom();
+        this.clienteAtual = gerarProximoCliente();
         orquestrador.mostrarTela(Tela.INICIAL);
         System.out.println("🎮 Jogo: Reiniciando para menu inicial");
     }
@@ -154,17 +131,27 @@ public class Jogo {
     }
 
     // ============================================================
-    // MECÂNICA DO JOGO (Sem alterações)
+    // MECÂNICA DO JOGO
     // ============================================================
 
+    private Cliente gerarProximoCliente() {
+        if (persistencia == null) {
+            System.err.println("⚠️ Jogo em modo OFFLINE. Gerando cliente Padrão.");
+            List<Ingrediente> dummyIng = List.of(new Ingrediente(1, "Café"), new Ingrediente(2, "Água"));
+            MenuItem dummyPedido = new MenuItem(1, "Café Preto (Offline)", dummyIng);
+            return new data.model.ClienteCalmo("Cliente Offline", dummyPedido, "Estou... conectado?");
+        }
+        
+        return ClienteGen.gerarClienteRandom(clienteNpcDAO, cardapioDAO, frasesDAO);
+    }
+    
     public void entregarPedido(Ingrediente[] bandeja) {
         if (!jogoAtivo) return;
         MenuItem pedidoCorreto = clienteAtual.getPedido();
         
         if (pedidoCorreto == null) {
-            System.err.println("❌ Jogo: Cliente " + clienteAtual.getNome() + " está sem pedido!");
             registrarPontuacao(false);
-            this.clienteAtual = ClienteGen.gerarClienteRandom();
+            this.clienteAtual = gerarProximoCliente();
             navegarPara(Tela.CLIENTE_CHEGANDO);
             return; 
         }
@@ -172,7 +159,8 @@ public class Jogo {
         Ingrediente[] receitaCorreta = pedidoCorreto.getIngredientes().toArray(new Ingrediente[0]);
         boolean acertou = compararReceitas(bandeja, receitaCorreta);
         registrarPontuacao(acertou);
-        this.clienteAtual = ClienteGen.gerarClienteRandom();
+        
+        this.clienteAtual = gerarProximoCliente();
         System.out.println("🎮 Jogo: Próximo cliente: " + clienteAtual.getNome() + 
                          " | Jogador: " + nomeJogador + " | Pontuação: " + pontuacaoAtual);
         navegarPara(Tela.CLIENTE_CHEGANDO);
@@ -214,10 +202,6 @@ public class Jogo {
         }
     }
     
-    /**
-     * MÉTODO MODIFICADO
-     * Agora verifica se a persistência é nula antes de tentar salvar.
-     */
     private void salvarHistorico(String nomeJogador) {
         if (persistencia == null) {
             System.err.println("⚠️ Jogo: Persistência nula. Pulando salvamento de histórico.");
@@ -235,7 +219,7 @@ public class Jogo {
     }
 
     // ============================================================
-    // MÉTODOS DE APOIO ÀS TELAS (Sem alterações)
+    // MÉTODOS DE APOIO ÀS TELAS
     // ============================================================
     public MenuItem getPedidoClienteAtual() {
         if (this.clienteAtual != null) {
@@ -245,8 +229,12 @@ public class Jogo {
     }
 
     public List<MenuItem> getCardapio() {
+        if (cardapioDAO == null) {
+            System.err.println("⚠️ Erro ao obter cardápio: Modo Offline.");
+            return List.of();
+        }
         try {
-            return Cardapio.getMenu();
+            return cardapioDAO.getMenu();
         } catch (Exception e) {
             System.err.println("⚠️ Erro ao obter cardápio: " + e.getMessage());
             return List.of();
@@ -254,8 +242,12 @@ public class Jogo {
     }
 
     public List<Ingrediente> getTodosIngredientes() {
+        if (cardapioDAO == null) {
+            System.err.println("⚠️ Erro ao obter ingredientes: Modo Offline.");
+            return List.of();
+        }
         try {
-            return Cardapio.getIngredientes();
+            return cardapioDAO.getTodosIngredientes();
         } catch (Exception e) {
             System.err.println("⚠️ Erro ao obter ingredientes: " + e.getMessage());
             return List.of();
@@ -263,7 +255,7 @@ public class Jogo {
     }
 
     // ============================================================
-    // GETTERS GERAIS (Sem alterações)
+    // GETTERS GERAIS
     // ============================================================
 
     public int getPontuacao() {
@@ -282,10 +274,6 @@ public class Jogo {
         return jogoAtivo;
     }
 
-    /**
-     * MÉTODO MODIFICADO
-     * Agora verifica se a persistência é nula antes de tentar ler.
-     */
     public Historico[] getRanking() {
         if (persistencia == null) {
             System.err.println("⚠️ Jogo: Persistência nula. Retornando ranking vazio.");
