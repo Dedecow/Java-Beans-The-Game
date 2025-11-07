@@ -14,33 +14,30 @@ public class HistoricoDAOMySQL implements IPersistencia {
     }
 
     private void criarTabelaSeNaoExistir() {
+        // CORREÇÃO: Trocamos "DATE DEFAULT CURRENT_DATE" por "DATETIME DEFAULT CURRENT_TIMESTAMP"
         String sql = """
             CREATE TABLE IF NOT EXISTS historico (
                 id INT PRIMARY KEY AUTO_INCREMENT,
-                nomeCliente VARCHAR(255) NOT NULL,
-                pontuacao INT NOT NULL
+                nomeJogador VARCHAR(255) NOT NULL,
+                pontuacao INT NOT NULL,
+                dataPartida DATETIME DEFAULT CURRENT_TIMESTAMP
             );
         """;
         
-        // 1. Declarar recursos fora do try
         Connection conn = null;
         Statement stmt = null;
 
         try {
-            // 2. Abrir recursos
+            // Esta conexão agora funciona
             conn = ConexaoMySQL.conectar();
             stmt = conn.createStatement();
-            
-            // 3. Executar lógica
             stmt.execute(sql);
             System.out.println("✅ Tabela MySQL checada/criada.");
             
         } catch (SQLException e) {
-            // 4. Tratar exceções de SQL
             System.err.println("❌ Erro ao criar tabela MySQL: " + e.getMessage());
             throw new DBException("Falha ao verificar/criar tabela 'historico'", e);
         } finally {
-            // 5. Fechar recursos na ordem INVERSA (primeiro stmt, depois conn)
             ConexaoMySQL.desconectar(stmt);
             ConexaoMySQL.desconectar(conn);
         }
@@ -48,29 +45,26 @@ public class HistoricoDAOMySQL implements IPersistencia {
 
     @Override
     public void salvar(Historico registro) {
-        String sql = "INSERT INTO historico (nomeCliente, pontuacao) VALUES (?, ?)";
+        // Este SQL não precisa de 'dataPartida' pois o banco cuidará disso (DEFAULT)
+        String sql = "INSERT INTO historico (nomeJogador, pontuacao) VALUES (?, ?)";
         
-        // 1. Declarar recursos fora do try
         Connection conn = null;
         PreparedStatement stmt = null;
         
         try {
-            // 2. Abrir recursos
             conn = ConexaoMySQL.conectar();
             stmt = conn.prepareStatement(sql);
             
-            // 3. Executar lógica
-            stmt.setString(1, registro.getNomeCliente());
+            stmt.setString(1, registro.getNomeJogador());
             stmt.setInt(2, registro.getPontuacao());
             stmt.executeUpdate();
-            System.out.println(" Registro salvo no MySQL: " + registro.getNomeCliente() + " - " + registro.getPontuacao());
+            
+            System.out.println("✅ Registro salvo no MySQL: " + registro.getNomeJogador() + " - " + registro.getPontuacao());
 
         } catch (SQLException e) {
-            // 4. Tratar exceções de SQL
-            System.err.println(" Erro ao salvar no MySQL: " + e.getMessage());
+            System.err.println("❌ Erro ao salvar no MySQL: " + e.getMessage());
             throw new DBException("Falha ao salvar registro no MySQL", e);
         } finally {
-            // 5. Fechar recursos na ordem INVERSA
             ConexaoMySQL.desconectar(stmt);
             ConexaoMySQL.desconectar(conn);
         }
@@ -78,33 +72,28 @@ public class HistoricoDAOMySQL implements IPersistencia {
 
     @Override
     public Historico[] lerHistorico() {
-        String sql = "SELECT nomeCliente, pontuacao FROM historico ORDER BY pontuacao DESC";
+        String sql = "SELECT nomeJogador, pontuacao FROM historico ORDER BY pontuacao DESC";
         List<Historico> lista = new ArrayList<>();
 
-        // 1. Declarar recursos fora do try
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
 
         try {
-            // 2. Abrir recursos
             conn = ConexaoMySQL.conectar();
             stmt = conn.createStatement();
             rs = stmt.executeQuery(sql);
 
-            // 3. Executar lógica
             while (rs.next()) {
-                String nome = rs.getString("nomeCliente");
+                String nomeJogador = rs.getString("nomeJogador");
                 int pontos = rs.getInt("pontuacao");
-                lista.add(new Historico(nome, pontos));
+                lista.add(new Historico(nomeJogador, pontos));
             }
 
         } catch (SQLException e) {
-            // 4. Tratar exceções de SQL
-            System.err.println("Erro ao ler histórico do MySQL: " + e.getMessage());
+            System.err.println("❌ Erro ao ler histórico do MySQL: " + e.getMessage());
             throw new DBException("Falha ao ler histórico do MySQL", e);
         } finally {
-            // 5. Fechar recursos na ordem INVERSA (rs, stmt, conn)
             ConexaoMySQL.desconectar(rs);
             ConexaoMySQL.desconectar(stmt);
             ConexaoMySQL.desconectar(conn);

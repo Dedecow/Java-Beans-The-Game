@@ -2,8 +2,7 @@ package engine;
 
 import data.model.Historico;
 import data.persistence.IPersistencia;
-import data.persistence.HistoricoDAOSQLite; 
-import data.persistence.HistoricoDAOMySQL; // <<< NOVO IMPORT
+import data.persistence.HistoricoDAOMySQL;
 import view.MainUI; 
 import view.Tela;
 import data.model.Cliente;
@@ -16,8 +15,9 @@ import java.util.List;
 
 /**
  * Classe central do motor do jogo.
- * * Responsável por controlar o fluxo principal do gameplay,
+ * Responsável por controlar o fluxo principal do gameplay,
  * coordenar a pontuação, clientes, navegação de telas e persistência.
+ * CORRIGIDO: Agora armazena e utiliza o nome do jogador real.
  */
 public class Jogo {
     private int pontuacaoAtual;
@@ -25,20 +25,16 @@ public class Jogo {
     private final IPersistencia persistencia;
     private MainUI orquestrador;
     private boolean jogoAtivo;
+    private String nomeJogador; // NOVO: Nome do jogador real
 
     // ============================================================
     // CONSTRUTOR
     // ============================================================
     public Jogo() {
-        // -------------------------------------------------------------------
-        // MUDANÇA ESSENCIAL: AGORA USA O NOVO DAO MYSQL
-        // Isso elimina o erro de driver SQLite, pois não será mais inicializado.
-        // -------------------------------------------------------------------
-        this.persistencia = new HistoricoDAOMySQL(); // <<< AQUI ESTÁ A CORREÇÃO
-        // -------------------------------------------------------------------
-        
+        this.persistencia = new HistoricoDAOMySQL();
         this.pontuacaoAtual = 0;
         this.jogoAtivo = false;
+        this.nomeJogador = "Barista"; // Valor padrão
         Cardapio.getMenu(); // Força o carregamento do cardápio
         this.clienteAtual = ClienteGen.gerarClienteRandom(); 
     }
@@ -55,11 +51,17 @@ public class Jogo {
         System.out.println("🎮 Jogo: Motor iniciado");
     }
     
-    public void iniciarJogo() {
+    // MÉTODO MODIFICADO: Agora recebe o nome do jogador
+    public void iniciarJogo(String nomeJogador) {
         if (orquestrador == null) {
             System.err.println("❌ Jogo: Orquestrador não definido!");
             return;
         }
+        
+        // CORREÇÃO: Salva o nome do jogador
+        this.nomeJogador = (nomeJogador != null && !nomeJogador.trim().isEmpty()) 
+            ? nomeJogador.trim() : "Barista";
+        
         this.pontuacaoAtual = 0;
         this.jogoAtivo = true;
         this.clienteAtual = ClienteGen.gerarClienteRandom();
@@ -67,15 +69,25 @@ public class Jogo {
         // Navega para a tela de transição
         orquestrador.mostrarTela(Tela.CLIENTE_CHEGANDO);
 
-        System.out.println("🎮 Jogo: Partida iniciada. Novo cliente: " + clienteAtual.getNome());
+        System.out.println("🎮 Jogo: Partida iniciada. Jogador: " + this.nomeJogador + 
+                         " | Cliente: " + clienteAtual.getNome());
+    }
+
+    // MÉTODO LEGADO (para compatibilidade)
+    public void iniciarJogo() {
+        iniciarJogo("Barista"); // Usa valor padrão
     }
 
     public void finalizarJogo() {
         if (orquestrador == null) return;
         this.jogoAtivo = false;
-        salvarHistorico(clienteAtual.getNome());
+        
+        // CORREÇÃO: Salva o nome do JOGADOR, não do cliente NPC
+        salvarHistorico(this.nomeJogador);
+        
         orquestrador.mostrarTela(Tela.GAME_OVER);
-        System.out.println("🎮 Jogo: Partida finalizada - Pontuação: " + pontuacaoAtual);
+        System.out.println("🎮 Jogo: Partida finalizada - Jogador: " + nomeJogador + 
+                         " | Pontuação: " + pontuacaoAtual);
     }
 
     public void reiniciarPartida() {
@@ -113,7 +125,8 @@ public class Jogo {
         boolean acertou = compararReceitas(bandeja, receitaCorreta);
         registrarPontuacao(acertou);
         this.clienteAtual = ClienteGen.gerarClienteRandom();
-        System.out.println("🎮 Jogo: Próximo cliente: " + clienteAtual.getNome());
+        System.out.println("🎮 Jogo: Próximo cliente: " + clienteAtual.getNome() + 
+                         " | Jogador: " + nomeJogador + " | Pontuação: " + pontuacaoAtual);
         navegarPara(Tela.CLIENTE_CHEGANDO);
     }
 
@@ -143,20 +156,22 @@ public class Jogo {
         if (!jogoAtivo) return;
         if (acertou) {
             pontuacaoAtual += 10;
-            System.out.println("🎮 Pedido correto! +10 pontos");
+            System.out.println("🎮 Pedido correto! +10 pontos | Jogador: " + nomeJogador);
         } else {
             pontuacaoAtual = Math.max(0, pontuacaoAtual - 5);
-            System.out.println("🎮 Pedido errado! -5 pontos");
+            System.out.println("🎮 Pedido errado! -5 pontos | Jogador: " + nomeJogador);
         }
         if (orquestrador != null) {
-            orquestrador.atualizarStatus("Em Jogo | Pontuação: " + pontuacaoAtual);
+            orquestrador.atualizarStatus("Jogador: " + nomeJogador + " | Pontuação: " + pontuacaoAtual);
         }
     }
     
-    private void salvarHistorico(String nomeCliente) {
+    // CORREÇÃO: Método agora recebe nomeJogador explicitamente
+    private void salvarHistorico(String nomeJogador) {
         try {
-            Historico historico = new Historico(nomeCliente, pontuacaoAtual);
+            Historico historico = new Historico(nomeJogador, pontuacaoAtual);
             persistencia.salvar(historico);
+            System.out.println("✅ Histórico salvo para jogador: " + nomeJogador);
         } catch (Exception e) {
             System.err.println("❌ Jogo: Erro ao salvar histórico: " + e.getMessage());
         }
@@ -217,5 +232,10 @@ public class Jogo {
             System.err.println("❌ Erro ao ler histórico: " + e.getMessage());
             return new Historico[0];
         }
+    }
+    
+    // NOVO GETTER: Para obter o nome do jogador atual
+    public String getNomeJogador() {
+        return nomeJogador;
     }
 }

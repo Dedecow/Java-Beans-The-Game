@@ -1,23 +1,31 @@
+// data/model/Historico.java
 package data.model;
 
 /**
  * Representa um registro do histórico de pedidos (o que seria salvo no BD).
- * Esta é a classe de modelo (o 'Usuario.java' do seu exemplo).
+ * CORRIGIDO: Agora armazena o nome do JOGADOR, não do NPC cliente.
  */
 public class Historico {
-    private String nomeCliente;
+    private String nomeJogador;  
     private int pontuacao;
+    private String dataPartida; 
 
-    public Historico(String nomeCliente, int pontuacao) {
-        this.nomeCliente = nomeCliente;
+    public Historico(String nomeJogador, int pontuacao) {
+        this.nomeJogador = nomeJogador;
         this.pontuacao = pontuacao;
+        this.dataPartida = java.time.LocalDate.now().toString();
     }
 
-    public String getNomeCliente() {
-        return nomeCliente;
+    // Getters
+    public String getNomeJogador() {
+        return nomeJogador;
     }
 
     public int getPontuacao() {
         return pontuacao;
+    }
+
+    public String getDataPartida() {
+        return dataPartida;
     }
 }

@@ -9,6 +9,7 @@ import java.awt.*;
 /**
  * Tela Ranking — responsabilidade: exibir o Top 10 de pontuações
  * do histórico, lendo os dados do motor do jogo (que consulta o DAO).
+ * CORRIGIDO: Agora exibe o nome do jogador real em vez do nome do cliente NPC.
  */
 public class TelaRanking extends JPanel {
 
@@ -49,9 +50,10 @@ public class TelaRanking extends JPanel {
             Color corRank;
 
             if (i < ranking.length) {
-                // Se houver dados no histórico
+                // CORREÇÃO: Usando getNomeJogador() em vez de getNomeCliente()
                 Historico h = ranking[i];
-                textoRank = String.format("%d. %-20s %d pontos", (i + 1), h.getNomeCliente(), h.getPontuacao());
+                textoRank = String.format("%d. %-20s %d pontos", 
+                    (i + 1), h.getNomeJogador(), h.getPontuacao());
             } else {
                 // Preenche espaços vazios
                 textoRank = (i + 1) + ". ...";
