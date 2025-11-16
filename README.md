@@ -35,7 +35,7 @@ data (O Modelo e os DAOs - Data Access Object): Divide-se em:
 
 model: Contém os "JavaBeans" (as classes de entidade, como Cliente, MenuItem, Historico).
 
-persistence: Contém os DAOs (Data Access Object), como HistoricoDAOMySQL (gerencia a pontuação), CardapioDAOMySQL, ClienteNpcDAO e FrasesDAO (gerenciam a leitura do conteúdo estático do jogo).
+persistence: Contém os Objetos de Acesso aos Dados (DAO), como HistoricoDAOMySQL (gerencia a pontuação), CardapioDAOMySQL, ClienteNpcDAO e FrasesDAO (gerenciam a leitura do conteúdo estático do jogo).
 
 setup: Contém classes "Factory" como ClienteGen, que utilizam os DAOs para montar novos objetos de forma dinâmica.
 
