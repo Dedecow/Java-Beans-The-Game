@@ -48,10 +48,8 @@ Adicionar o Driver JDBC ao NetBeans: Baixe o MySQL Connector/J e adicione o arqu
 
 Criar o Arquivo de Credenciais (config.properties): Na pasta raiz do projeto, crie um arquivo com este nome e o seguinte conteúdo, substituindo pelas suas credenciais do MySQL:
 
-properties
-db.url=jdbc:mysql://localhost:3306/javabeans_game?useSSL=false
-db.user=seu_usuario_mysql
-db.pass=sua_senha_mysql
+properties:  db.url=jdbc:mysql://localhost:3306/javabeans_game?useSSL=false ; db.user=seu_usuario_mysql ; db.pass=sua_senha_mysql;
+
 Executar o Jogo: No NetBeans, realize um "Clean and Build" e execute o projeto (ou o arquivo app.Cafeteria.java diretamente).
 
 👥 Autores
