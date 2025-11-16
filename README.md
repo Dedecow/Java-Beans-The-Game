@@ -1,6 +1,6 @@
 Java Beans - The Game ☕
 
-O "Java Beans - The Game" é um jogo de simulação de cafeteria desenvolvido em Java (Swing) que combina diversão e rigor acadêmico em sua construção. O jogador assume o papel de um barista, com o objetivo principal de proporcionar uma experiência lúdica e divertida para entusiastas de café, permitindo-lhes atender clientes (NPCs) com diferentes personalidades, explorar ingredientes e aprender receitas de forma interativa.
+O "Java Beans - The Game" é um jogo de simulação de cafeteria desenvolvido em Java (Swing) que combina diversão e rigor acadêmico em sua construção. O jogador assume o papel de um barista, com o objetivo principal de proporcionar uma experiência lúdica e divertida para entusiastas de café, permitindo-lhes atender clientes (NPCs - Non-Player Character) com diferentes personalidades, explorar ingredientes e aprender receitas de forma interativa.
 
 Academicamente, o projeto serve como um estudo de caso prático para a aplicação rigorosa de princípios de Orientação a Objetos (Herança, Polimorfismo, Interfaces) e padrões de arquitetura de software, como MVC (Model-View-Controller) e DAO (Data Access Object), garantindo um código limpo, desacoplado e de alta manutenibilidade.
 
