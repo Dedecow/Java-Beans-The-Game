@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import data.model.Menu.MenuItem;
 
 /**
  * Tela de transição que mostra a chegada de um novo cliente.
@@ -21,50 +22,34 @@ public class TelaClienteChegando extends JPanel implements MainUI.Atualizavel {
      */
     private final String[] frasesLoading = {
         "Um cliente está entrando na cafeteria...",
-        "Preparando o balcão...",
-        "Aquecendo a máquina de café..."
+        "Que bebida ele vai pedir...",
+        "Será que acerto os ingredientes? ..."
     };
 
-    /**
-     * Frase real do cliente (buscada do 'jogo').
-     */
+
     private String fraseClienteAtual;
-    
-    /**
-     * Controla a etapa atual da animação (de 0 a totalEtapas-1).
-     */
     private int etapaAtual = 0;
-    
-    /**
-     * Número total de etapas (frases de loading + 1 frase do cliente).
-     */
     private int totalEtapas;
 
     public TelaClienteChegando(Jogo jogo) {
         this.jogo = jogo;
-        this.iconeCliente = carregarIcone("assets/fotos/cliente-generica.png", 80);
+        //this.iconeCliente = carregarIcone("assets/fotos/cliente-generica.png", 80);
         configurarLayout();
         configurarAnimacao();
     }
     
-    /**
-     * Configura o Timer, mas não o inicia.
-     * O Timer agora apenas avança a 'etapaAtual' e redesenha.
-     */
+    
     private void configurarAnimacao() {
-        // Define o total de etapas (ex: 3 frases de loading + 1 do cliente = 4)
         this.totalEtapas = frasesLoading.length + 1;
         this.fraseClienteAtual = "Carregando..."; // Valor padrão
 
         timer = new Timer(800, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Vai da etapa 0 até 'totalEtapas - 1'
                 if (etapaAtual < totalEtapas - 1) {
                     etapaAtual++; // Avança o estado
                     repaint();    // Redesenha o painel com a nova etapa
                 } else {
-                    // Animação concluída
                     timer.stop();
                     jogo.navegarPara(Tela.JOGO); // Vai para a tela principal
                 }
@@ -72,30 +57,48 @@ public class TelaClienteChegando extends JPanel implements MainUI.Atualizavel {
         });
     }
 
-    /**
-     * Método da interface MainUI.Atualizavel.
-     * É chamado pelo MainUI ANTES desta tela ser exibida.
-     * Prepara a tela para a animação.
-     */
+
     @Override
     public void atualizarInfo() {
         // 1. Reinicia o estado da animação
-        this.etapaAtual = 0;
+        this.etapaAtual = 0; //
         
-        // 2. Busca a frase ATUAL do cliente no motor do jogo
+        // 2. (NOVO) Busca o ÍCONE ATUAL (o Jogo.java já fornece um fallback)
+        // O Jogo.java já garante um fallback de path
+        String pathDoCliente = jogo.getIconePathClienteAtual(); 
+        
+        // Apenas tenta carregar o que o Jogo mandou
+        this.iconeCliente = carregarIcone(pathDoCliente, 80); //
+
+        // 3. (NOVO) Busca a FRASE e o PEDIDO
         try {
-            this.fraseClienteAtual = jogo.getFraseClienteAtual();
+            // Pega a frase comportamental (ex: "Estou com pressa!")
+            String fraseComportamental = jogo.getFraseClienteAtual(); 
+            
+            // Pega o item do pedido
+            MenuItem pedido = jogo.getPedidoClienteAtual(); 
+            
+            // Define o nome do pedido, com um fallback
+            String nomePedido = "café";
+            if (pedido != null) {
+                nomePedido = pedido.getName(); 
+            }
+            
+            // Combina as duas para a frase final que será exibida
+            this.fraseClienteAtual = fraseComportamental + " " + nomePedido + ".";
+
         } catch (Exception e) {
-            System.err.println("⚠️ Erro ao carregar frase do cliente: " + e.getMessage());
-            this.fraseClienteAtual = "Hmm... o que vou pedir?";
+            // O fallback agora inclui um pedido genérico
+            System.err.println("Erro ao carregar frase/pedido do cliente: " + e.getMessage());
+            this.fraseClienteAtual = "Hmm... o que vou pedir? Acho que uma média."; //
         }
         
-        // 3. (Re)calcula o total de etapas
-        this.totalEtapas = frasesLoading.length + 1;
+        // 4. (Re)calcula o total de etapas
+        this.totalEtapas = frasesLoading.length + 1; //
 
-        // 4. Inicia o timer da animação
-        if (timer != null && !timer.isRunning()) {
-            timer.start();
+        // 5. Inicia o timer da animação
+        if (timer != null && !timer.isRunning()) { //
+            timer.start(); //
         }
     }
 
