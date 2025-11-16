@@ -24,14 +24,14 @@ Arquitetura: Padrão MVC (Model-View-Controller) e DAO (Data Access Object)
 
 IDE: Apache NetBeans
 
-🏗️ Arquitetura do Sistema (MVC)
+🏗️ Arquitetura do Sistema (MVC - Model-View-Controller)
 O projeto segue um padrão rigoroso de Separação de Responsabilidades, organizado em três camadas principais:
 
 view (A Interface): Orquestrada pelo MainUI.java (o JFrame principal), onde todas as telas são JPanels modulares (ex: TelaInicial, TelaJogo). A view é "burra": ela apenas exibe dados e envia comandos de ação para o engine, nunca acessando o banco de dados diretamente.
 
 engine (O Controlador): Representado pelo Jogo.java, atua como o "maestro" do jogo. Ele controla o estado da partida (pontuação, jogador atual) e é a única camada que pode se comunicar tanto com a view quanto com a data.
 
-data (O Modelo e os DAOs): Divide-se em:
+data (O Modelo e os DAOs - Data Access Object): Divide-se em:
 
 model: Contém os "JavaBeans" (as classes de entidade, como Cliente, MenuItem, Historico).
 
