@@ -7,9 +7,9 @@ Academicamente, o projeto serve como um estudo de caso prático para a aplicaç�
 Funcionalidades Principais
 O jogo conta com um Sistema de Clientes (NPCs) que gera personagens com 4 personalidades distintas (Apressado, Calmo, Exigente, Indeciso). Cada cliente possui um nome e uma frase únicos, lidos diretamente do banco de dados, o que agrega variedade e imprevisibilidade ao gameplay.
 
-O Cardápio Dinâmico e os ingredientes são totalmente carregados do banco de dados MySQL, permitindo fácil expansão e personalização. Na Mecânica de Jogo, o jogador deve preparar o pedido correto na TelaPreparo, sendo que consultar o livro (TelaReceita) para verificar a receita penaliza a pontuação final da rodada, adicionando uma camada estratégica.
+O Cardápio Dinâmico e os ingredientes são totalmente carregados do banco de dados MySQL, permitindo fácil expansão e personalização. Na Mecânica de Jogo, o jogador deve preparar o pedido correto na TelaPreparo, sendo que consultar o livro (TelaReceita) para verificar a receita fica disponível apenas até os 120 pontos, adicionando uma camada estratégica.
 
-Ao final da partida (TelaGameOver), a pontuação do jogador (definido na TelaInicial) é salva na tabela historico do MySQL, implementando a Persistência de Ranking. O projeto foi desenvolvido de forma colaborativa, com foco em uma Arquitetura Profissional e assistência de IA, resultando em um código bem estruturado e documentado.
+Ao final da partida (TelaGameOver), a pontuação do jogador (definido na TelaInicial) é salva na tabela historico do MySQL, implementando a Persistência de Ranking. O projeto foi desenvolvido de forma colaborativa entre os estudantes e com assistência de IA, resultando em um código funcional e bem estruturado.
 
 🛠️ Tecnologias Utilizadas
 Linguagem Principal: Java (JDK 17+)
