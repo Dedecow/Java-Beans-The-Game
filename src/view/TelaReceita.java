@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
+//import javax.swing.Timer;
 
 /**
  * Tela Receita — responsabilidade: exibir a lista de
@@ -20,7 +21,13 @@ public class TelaReceita extends JPanel {
         this.jogo = jogo;
         configurarLayout();
         montarComponentes();
+        
+//        new javax.swing.Timer(10_000, e -> {
+//            jogo.navegarPara(Tela.JOGO);
+//        }).start();
     }
+    
+    
 
     private void configurarLayout() {
         setBackground(CafeColors.FUNDO_BEGE);
@@ -28,6 +35,8 @@ public class TelaReceita extends JPanel {
     }
 
     private void montarComponentes() {
+
+
         // 1. Cabeçalho
         JLabel titulo = new JLabel("📖 Livro de Receitas", SwingConstants.CENTER);
         titulo.setFont(new Font("Monospaced", Font.BOLD, 22));
@@ -91,4 +100,5 @@ public class TelaReceita extends JPanel {
         b.addActionListener(e -> jogo.navegarPara(Tela.JOGO));
         return b;
     }
+    
 }
