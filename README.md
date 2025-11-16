@@ -1,137 +1,58 @@
-# ETAPAS DA A3 - UC DUAL: PROGRAMAÇÃO DE SOLUÇÕES COMPUTACIONAIS - PRESENCIAL 2025-2
+Java Beans - The Game ☕
 
-**Equipe:**
-Luísa Viotto Brandão - Análise e Desenvolvimento de Sistemas - UAM
-Patrick Uriel Ferreira Miranda - Ciências da Computação - SÂO JUDAS
-André Ricardo S. Silveira - Análise e Desenvolvimento de Sistemas - UNIFACS
-Lucas Bastos Pita Lima - Análise e Desenvolvimento de Sistemas - UNIFACS
-Leonan Silva dos Santos - Análise e Desenvolvimento de Sistemas - UNIFACS
-Debora Cristina Erhart - Banco de dados - UNISUL
-Bianca Azevedo Zinani - Ciências da Computação - UAM
+O "Java Beans - The Game" é um jogo de simulação de cafeteria desenvolvido em Java (Swing) que combina diversão e rigor acadêmico em sua construção. O jogador assume o papel de um barista, com o objetivo principal de proporcionar uma experiência lúdica e divertida para entusiastas de café, permitindo-lhes atender clientes (NPCs) com diferentes personalidades, explorar ingredientes e aprender receitas de forma interativa.
 
-## INTRODUÇÃO E DEFINIÇÃO DA PROPOSTA
+Academicamente, o projeto serve como um estudo de caso prático para a aplicação rigorosa de princípios de Orientação a Objetos (Herança, Polimorfismo, Interfaces) e padrões de arquitetura de software, como MVC (Model-View-Controller) e DAO (Data Access Object), garantindo um código limpo, desacoplado e de alta manutenibilidade.
 
-Na primeira etapa do projeto da UC Dual de Programação de Soluções Computacionais, foi realizada a apresentação formal da proposta de desenvolvimento de uma solução utilizando a linguagem Java com Paradigma de Orientação a Objetos. Esta fase inicial teve como objetivo principal estabelecer os fundamentos do projeto, compreender os requisitos necessários e organizar a estrutura de trabalho colaborativo.
+Funcionalidades Principais
+O jogo conta com um Sistema de Clientes (NPCs) que gera personagens com 4 personalidades distintas (Apressado, Calmo, Exigente, Indeciso). Cada cliente possui um nome e uma frase únicos, lidos diretamente do banco de dados, o que agrega variedade e imprevisibilidade ao gameplay.
 
-## OBJETIVOS ESTABELECIDOS
+O Cardápio Dinâmico e os ingredientes são totalmente carregados do banco de dados MySQL, permitindo fácil expansão e personalização. Na Mecânica de Jogo, o jogador deve preparar o pedido correto na TelaPreparo, sendo que consultar o livro (TelaReceita) para verificar a receita penaliza a pontuação final da rodada, adicionando uma camada estratégica.
 
-Foram definidos três objetivos principais para esta etapa inicial:
-1. Compreensão detalhada da proposta de projeto a ser desenvolvida
-2. Identificação e análise dos requisitos técnicos necessários
-3. Criação e configuração do repositório Git/GitHub para versionamento e colaboração
+Ao final da partida (TelaGameOver), a pontuação do jogador (definido na TelaInicial) é salva na tabela historico do MySQL, implementando a Persistência de Ranking. O projeto foi desenvolvido de forma colaborativa, com foco em uma Arquitetura Profissional e assistência de IA, resultando em um código bem estruturado e documentado.
 
-## ESCOPO DO PROJETO: JAVA BEANS - THE GAME
+🛠️ Tecnologias Utilizadas
+Linguagem Principal: Java (JDK 17+)
 
-Foi definido o desenvolvimento do jogo "Java Beans - The Game", uma simulação de cafeteria com as seguintes características principais:
+Interface Gráfica (View): Java Swing
 
-### Conceito do Jogo:
-JavaBeans é um jogo dinâmico que simula o ambiente de uma cafeteria, onde o jogador aprende receitas e atende clientes em um fluxo contínuo de serviço.
+Banco de Dados (Data): MySQL Server
 
-### Mecânicas Básicas:
-- **Menu Inicial**: Tela de início do jogo com botão "Start"
-- **Sistema de Clientes**: 
-  - Clientes com comportamentos distintos (extensões da classe Cliente)
-  - Animação de chegada do cliente até o balcão
-  - Sistema de pedidos personalizados
-- **Sistema de Preparo**: 
-  - Menu de bebidas com opções e ingredientes
-  - Mecânica de seleção e combinação de ingredientes
-  - Verificação de acerto/erro no preparo
-- **Fluxo de Jogo**: 
-  - Pedido correto → Próximo cliente
-  - Pedido errado → Explicação do erro e oportunidade de corrigir
+Conectividade (Persistence): JDBC (via mysql-connector-j)
 
-### Sistema de Feedback e Progresso:
-- Tela de resultados com informações de sucesso/erro
-- Explicação detalhada dos erros cometidos
-- Sistema de pontuação baseado na eficiência e precisão
-- Botões de controle: finalizar e chamar próximo cliente
+Arquitetura: Padrão MVC (Model-View-Controller) e DAO (Data Access Object)
 
-### Expansões Futuras:
-- Implementação de cronômetro (10 minutos para produção de 50 bebidas)
-- Adição de variedade de sabores e complexidade nas receitas
-- Sistema de níveis e dificuldade progressiva
+IDE: Apache NetBeans
 
-## ETAPA 2: PLANEJAMENTO DETALHADO E DEFINIÇÃO TÉCNICA
+🏗️ Arquitetura do Sistema (MVC)
+O projeto segue um padrão rigoroso de Separação de Responsabilidades, organizado em três camadas principais:
 
-### Arquitetura de Classes:
-- **Classe Base Cliente**: Com atributos e comportamentos comuns
-- **Classes Especializadas**: Diferentes tipos de clientes (Apressado, Exigente, Casual) como extensões da classe base
-- **Sistema de Ingredientes**: Catálogo completo de ingredientes disponíveis para preparo
-- **Sistema de Receitas**: Combinações específicas de ingredientes para cada bebida
+view (A Interface): Orquestrada pelo MainUI.java (o JFrame principal), onde todas as telas são JPanels modulares (ex: TelaInicial, TelaJogo). A view é "burra": ela apenas exibe dados e envia comandos de ação para o engine, nunca acessando o banco de dados diretamente.
 
-### Fluxograma do Jogo:
-1. Início → Tela Start
-2. Cliente chega (vídeo aleatório)
-3. Cliente faz pedido no balcão
-4. Jogador acessa menu de bebidas
-5. Seleção e preparo dos ingredientes
-6. Validação do pedido
-7. Feedback (Sucesso/Erro)
-8. Pontuação e explicação de erros
-9. Decisão: Próximo cliente ou Finalizar
+engine (O Controlador): Representado pelo Jogo.java, atua como o "maestro" do jogo. Ele controla o estado da partida (pontuação, jogador atual) e é a única camada que pode se comunicar tanto com a view quanto com a data.
 
-## ETAPA 3: DESENVOLVIMENTO E IMPLEMENTAÇÃO
+data (O Modelo e os DAOs): Divide-se em:
 
-### Divisão de Tarefas por Especialidade:
+model: Contém os "JavaBeans" (as classes de entidade, como Cliente, MenuItem, Historico).
 
-#### **Backend e Lógica do Jogo:**
-- **Responsáveis:** Patrick Uriel Ferreira Miranda, Leonan Silva dos Santos, Lucas Bastos Pita Lima
-- **Atribuições:**
-  - Implementação da engine principal do jogo (`Jogo.java`)
-  - Desenvolvimento do sistema de clientes e seus comportamentos
-  - Criação do sistema de cardápio e ingredientes
-  - Implementação da lógica de pontuação e progressão
-  - Desenvolvimento dos algoritmos de geração aleatória de clientes e pedidos
+persistence: Contém os DAOs (Data Access Object), como HistoricoDAOMySQL (gerencia a pontuação), CardapioDAOMySQL, ClienteNpcDAO e FrasesDAO (gerenciam a leitura do conteúdo estático do jogo).
 
-#### **Interface Gráfica (Telas):**
-- **Responsáveis:** Luísa Viotto Brandão, André Ricardo S. Silveira
-- **Atribuições:**
-  - Desenvolvimento do orquestrador principal (`MainUI.java`)
-  - Implementação das telas: Inicial, Jogo e Game Over
-  - Criação do sistema de navegação entre telas
-  - Design e implementação do tema visual retrô cafeteria
-  - Desenvolvimento dos componentes de interface do usuário
+setup: Contém classes "Factory" como ClienteGen, que utilizam os DAOs para montar novos objetos de forma dinâmica.
 
-#### **Persistência de Dados:**
-- **Responsáveis:** Bianca Azevedo Zinani, Debora Cristina Erhart
-- **Atribuições:**
-  - Implementação do sistema de histórico de partidas
-  - Desenvolvimento da interface de persistência (`IPersistencia.java`)
-  - Criação do DAO para histórico (`HistoricoDAO.java`)
-  - Configuração da conexão com banco de dados SQLite
-  - Implementação do padrão de persistência para futura migração para MySQL
+🚀 Como Executar o Projeto (Guia de Instalação)
+Para executar o projeto em sua máquina local, siga estes 4 passos:
 
-### Arquitetura Técnica Implementada:
-- **Padrão MVC (Model-View-Controller)** com separação clara de responsabilidades
-- **Injeção de Dependência** entre a engine do jogo e a interface gráfica
-- **Factory Method** para criação dinâmica de telas
-- **Padrão DAO (Data Access Object)** para abstração da persistência
-- **Sistema de Enumeração** para controle de estados e navegação
+Configurar o Banco de Dados MySQL: Crie o schema javabeans_game e execute o arquivo script-para-bd.sql (localizado na raiz do projeto) para criar e popular todas as tabelas necessárias.
 
-## FERRAMENTAS E PLATAFORMAS
+Adicionar o Driver JDBC ao NetBeans: Baixe o MySQL Connector/J e adicione o arquivo .jar às Libraries do projeto no NetBeans.
 
-Foi estabelecido o uso do GitHub como plataforma de versionamento e colaboração, com a criação do repositório oficial: https://github.com/Dedecow/Java-Beans-The-Game
+Criar o Arquivo de Credenciais (config.properties): Na pasta raiz do projeto, crie um arquivo com este nome e o seguinte conteúdo, substituindo pelas suas credenciais do MySQL:
 
-## METODOLOGIA DE TRABALHO
+properties
+db.url=jdbc:mysql://localhost:3306/javabeans_game?useSSL=false
+db.user=seu_usuario_mysql
+db.pass=sua_senha_mysql
+Executar o Jogo: No NetBeans, realize um "Clean and Build" e execute o projeto (ou o arquivo app.Cafeteria.java diretamente).
 
-Enfatizou-se a importância do trabalho colaborativo em grupo, valorizando a diversidade de opiniões, habilidades e formações acadêmicas dos integrantes para enriquecer a experiência de aprendizagem e a qualidade do produto final. A abordagem orientada a objetos permitirá a criação de um sistema modular e expansível.
-
-## PRÓXIMAS ETAPAS
-
-[Espaço reservado para descrição da ETAPA 4]
-
-[Espaço reservado para descrição da ETAPA 5]
-
-[Espaço reservado para descrição da ETAPA 6]
-
-[Espaço reservado para descrição da ETAPA 7]
-
-## CONSIDERAÇÕES FINAIS
-
-A Etapa 1 estabeleceu com sucesso os alicerces do projeto, definindo claramente o escopo, os objetivos e a estrutura de trabalho colaborativo. A criação do repositório GitHub e a definição do escopo do jogo "Java Beans - The Game" proporcionaram a base sólida necessária para o desenvolvimento das fases subsequentes do projeto. 
-
-O planejamento da Etapa 2 detalhou a arquitetura técnica e o fluxo completo do jogo, preparando o terreno para a implementação. Na Etapa 3, atualmente em andamento, a divisão estratégica por especialidades está permitindo um desenvolvimento paralelo e eficiente dos diferentes componentes do sistema, com cada membro da equipe contribuindo conforme suas competências específicas.
-
-**Data de Conclusão da Etapa 1:** Outubro de 2025
-**Status da Etapa 3:** Em Desenvolvimento Ativo
+👥 Autores
+Este projeto foi desenvolvido por André Ricardo S. Silveira (UNIFACS), Debora Cristina Erhart (UNISUL), Leonan Silva dos Santos (UNIFACS), Luísa Viotto Brandão (UAM) e Patrick Uriel Ferreira Miranda (SÃO JUDAS), sob a orientação do Professor Dr. Leandro Procopio Alves.
