@@ -13,21 +13,20 @@ import java.util.Random;
 public class ClienteGen {
     private static final Random GERADOR = new Random();
     
-    // As listas estáticas (NOMES, BEBIDAS, etc.) foram REMOVIDAS.
-
-    private ClienteGen() {} // Evita instanciação
-
-    /**
-     * MÉTODO PRINCIPAL ATUALIZADO
-     * Agora recebe os DAOs (Injeção de Dependência) do Jogo.
-     * Ele busca Nomes, Pedidos e Frases do banco de dados.
-     */
+    //Endereços dos Icones de cada cliente
+    private static final String ICONE_APRESSADO = "assets/fotos/cliente-apressado.png";
+    private static final String ICONE_CALMO = "assets/fotos/cliente-calmo.png";
+    private static final String ICONE_EXIGENTE = "assets/fotos/cliente-exigente.png";
+    private static final String ICONE_INDECISO = "assets/fotos/cliente-confuso.png";
+    
+    private ClienteGen() {} 
+    
+    
     public static Cliente gerarClienteRandom(
             ClienteNpcDAO npcDAO, 
             CardapioDAOMySQL cardapioDAO, 
             FrasesDAO frasesDAO) 
     {
-        // 1. Gera o Tipo de Cliente (local)
         TipoDeCliente tipoCliente = switch (GERADOR.nextInt(4)) {
             case 0 -> TipoDeCliente.APRESSADO;
             case 1 -> TipoDeCliente.EXIGENTE;
@@ -35,26 +34,52 @@ public class ClienteGen {
             default -> TipoDeCliente.INDECISO;
         };
 
-        // 2. Busca Nome (do BD)
         String nome = npcDAO.getNomeAleatorio();
         
-        // 3. Busca Pedido (do BD)
         List<MenuItem> menu = cardapioDAO.getMenu();
         if (menu == null || menu.isEmpty()) {
             throw new IllegalStateException("Cardápio do BD está vazio ou nulo!");
         }
         MenuItem pedido = menu.get(GERADOR.nextInt(menu.size()));
         
-        // 4. Busca Frase (do BD)
         String frase = frasesDAO.getFraseAleatoria(tipoCliente);
 
-        // 5. Monta o Cliente
+        // 5. DEFINE OS ATRIBUTOS (usando as constantes)
+        String iconePath;
+        int pontosAcerto;
+        int pontosErro;
+
+        switch (tipoCliente) {
+            case APRESSADO:
+                iconePath = ICONE_APRESSADO;
+                pontosAcerto = 25;
+                pontosErro = -10;
+                break;
+            case EXIGENTE:
+                iconePath = ICONE_EXIGENTE;
+                pontosAcerto = 20;
+                pontosErro = -10;
+                break;
+            case INDECISO:
+                iconePath = ICONE_INDECISO;
+                pontosAcerto = 10;
+                pontosErro = -0;
+                break;
+            case CALMO:
+            default:
+                iconePath = ICONE_CALMO;
+                pontosAcerto = 20;
+                pontosErro = -5;
+                break;
+        }
+        
+        // 6. Monta o Cliente
         // (Requer que os construtores de ClienteApressado, etc. sejam atualizados)
         return switch (tipoCliente) {
-            case APRESSADO -> new ClienteApressado(nome, pedido, frase);
-            case EXIGENTE -> new ClienteExigente(nome, pedido, frase);
-            case CALMO -> new ClienteCalmo(nome, pedido, frase);
-            default -> new ClienteIndeciso(nome, pedido, frase);
+            case APRESSADO -> new ClienteApressado(nome, pedido, frase, iconePath, pontosAcerto, pontosErro);
+            case EXIGENTE -> new ClienteExigente(nome, pedido, frase, iconePath, pontosAcerto, pontosErro);
+            case CALMO -> new ClienteCalmo(nome, pedido, frase, iconePath, pontosAcerto, pontosErro);
+            default -> new ClienteIndeciso(nome, pedido, frase, iconePath, pontosAcerto, pontosErro);
         };
     }
 }
