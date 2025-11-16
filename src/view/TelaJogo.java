@@ -99,9 +99,8 @@ public class TelaJogo extends JPanel {
         JPanel painel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5)); // Espaçamento
         painel.setOpaque(false); // Fundo transparente
 
-        // --- NOVO BOTÃO "DETALHES" ---
         JButton btnDetalhes = criarBotao(
-            "📋 Detalhes",
+            "📋 Esqueci Pedido",
             CafeColors.MARROM_MEIO, // Cor neutra [cite: 8]
             e -> jogo.navegarPara(Tela.DETALHES_CLIENTE)
         );
@@ -113,7 +112,11 @@ public class TelaJogo extends JPanel {
             e -> jogo.finalizarJogo()
         );
         
-        painel.add(btnDetalhes); // Adiciona o novo botão
+        if (!jogo.isJogadorTreinado()) { 
+            painel.add(btnDetalhes); 
+        }
+        
+        //painel.add(btnDetalhes); 
         painel.add(btnFinalizar);
         return painel;
     }

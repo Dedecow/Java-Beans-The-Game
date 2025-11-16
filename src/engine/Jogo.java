@@ -279,7 +279,14 @@
         public int getPontuacao() {
             return pontuacaoAtual;
         }
-
+        
+        public boolean isJogadorTreinado() {
+            // A lógica é calculada toda vez que o método é chamado.
+            // Se a pontuação for 121 ou mais, retorna true.
+            // Se for 120 ou menos, retorna false.
+            return this.pontuacaoAtual > 120;
+        }
+        
         public String getClienteAtual() {
             return (clienteAtual != null) ? clienteAtual.getNome() : "Nenhum cliente";
         }
