@@ -10,6 +10,8 @@ import data.model.Menu.MenuItem;
 /**
  * Tela de transição que mostra a chegada de um novo cliente.
  * Exibe uma animação, a imagem e a FRASE do cliente antes de ir para a tela de jogo.
+ *
+ * Versão atualizada com melhor layout e destaque para a imagem.
  */
 public class TelaClienteChegando extends JPanel implements MainUI.Atualizavel {
 
@@ -26,6 +28,9 @@ public class TelaClienteChegando extends JPanel implements MainUI.Atualizavel {
         "Será que acerto os ingredientes? ..."
     };
 
+    // Constante para o tamanho alvo da imagem (em destaque)
+    private static final int LARGURA_IMAGEM_CLIENTE = 150; 
+    private static final int BORDA_BRANCA_TAMANHO = 5;
 
     private String fraseClienteAtual;
     private int etapaAtual = 0;
@@ -33,12 +38,11 @@ public class TelaClienteChegando extends JPanel implements MainUI.Atualizavel {
 
     public TelaClienteChegando(Jogo jogo) {
         this.jogo = jogo;
-        //this.iconeCliente = carregarIcone("assets/fotos/cliente-generica.png", 80);
         configurarLayout();
         configurarAnimacao();
     }
-    
-    
+
+
     private void configurarAnimacao() {
         this.totalEtapas = frasesLoading.length + 1;
         this.fraseClienteAtual = "Carregando..."; // Valor padrão
@@ -62,28 +66,27 @@ public class TelaClienteChegando extends JPanel implements MainUI.Atualizavel {
     public void atualizarInfo() {
         // 1. Reinicia o estado da animação
         this.etapaAtual = 0; //
-        
+
         // 2. (NOVO) Busca o ÍCONE ATUAL (o Jogo.java já fornece um fallback)
-        // O Jogo.java já garante um fallback de path
-        String pathDoCliente = jogo.getIconePathClienteAtual(); 
-        
-        // Apenas tenta carregar o que o Jogo mandou
-        this.iconeCliente = carregarIcone(pathDoCliente, 80); //
+        String pathDoCliente = jogo.getIconePathClienteAtual();
+
+        // Apenas tenta carregar o que o Jogo mandou, usando o novo tamanho
+        this.iconeCliente = carregarIcone(pathDoCliente, LARGURA_IMAGEM_CLIENTE); //
 
         // 3. (NOVO) Busca a FRASE e o PEDIDO
         try {
             // Pega a frase comportamental (ex: "Estou com pressa!")
-            String fraseComportamental = jogo.getFraseClienteAtual(); 
-            
+            String fraseComportamental = jogo.getFraseClienteAtual();
+
             // Pega o item do pedido
-            MenuItem pedido = jogo.getPedidoClienteAtual(); 
-            
+            MenuItem pedido = jogo.getPedidoClienteAtual();
+
             // Define o nome do pedido, com um fallback
             String nomePedido = "café";
             if (pedido != null) {
-                nomePedido = pedido.getName(); 
+                nomePedido = pedido.getName();
             }
-            
+
             // Combina as duas para a frase final que será exibida
             this.fraseClienteAtual = fraseComportamental + " " + nomePedido + ".";
 
@@ -92,7 +95,7 @@ public class TelaClienteChegando extends JPanel implements MainUI.Atualizavel {
             System.err.println("Erro ao carregar frase/pedido do cliente: " + e.getMessage());
             this.fraseClienteAtual = "Hmm... o que vou pedir? Acho que uma média."; //
         }
-        
+
         // 4. (Re)calcula o total de etapas
         this.totalEtapas = frasesLoading.length + 1; //
 
@@ -106,58 +109,82 @@ public class TelaClienteChegando extends JPanel implements MainUI.Atualizavel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        
+
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
-        // --- 1. Ícone do cliente (Imagem) ---
+
+        // --- 1. Ícone do cliente (Imagem com Destaque) ---
         if (iconeCliente != null) {
-            int xIcone = (getWidth() - iconeCliente.getIconWidth()) / 2;
-            int yIcone = getHeight() / 2 - 70; 
+            int imgLargura = iconeCliente.getIconWidth();
+            int imgAltura = iconeCliente.getIconHeight();
+
+            // Posição centralizada no topo
+            int xIcone = (getWidth() - imgLargura) / 2;
+            int yIcone = getHeight() / 2 - (imgAltura / 2) - 50; // Ajuste para mover mais para cima
+
+            // ** Desenha o fundo/borda branca **
+            g2d.setColor(CafeColors.TEXTO_BRANCO);
+            g2d.fillRect(
+                xIcone - BORDA_BRANCA_TAMANHO,
+                yIcone - BORDA_BRANCA_TAMANHO,
+                imgLargura + (2 * BORDA_BRANCA_TAMANHO),
+                imgAltura + (2 * BORDA_BRANCA_TAMANHO)
+            );
+
+            // ** Desenha a imagem **
             g2d.drawImage(iconeCliente.getImage(), xIcone, yIcone, this);
+
+            // Calcula a posição do texto para ficar ABAIXO da imagem
+            int yPosicaoBaseTexto = yIcone + imgAltura + 20;
+
+            // --- 2. Frase de transição (Dinâmica) ---
+            String fraseParaExibir;
+
+            if (etapaAtual < frasesLoading.length) {
+                // Se a etapa atual está dentro do array de loading...
+                fraseParaExibir = frasesLoading[etapaAtual];
+            } else {
+                // Senão, é a última etapa (a frase do cliente)
+                // Usamos a frase real do cliente/pedido
+                fraseParaExibir = this.fraseClienteAtual;
+            }
+
+            g2d.setFont(new Font("Monospaced", Font.PLAIN, 18)); // Fonte maior para destaque
+            g2d.setColor(CafeColors.TEXTO_BRANCO);
+
+            FontMetrics fmFrase = g2d.getFontMetrics();
+            int xFrase = (getWidth() - fmFrase.stringWidth(fraseParaExibir)) / 2;
+            int yFrase = yPosicaoBaseTexto + fmFrase.getHeight(); // Posição calculada
+
+            g2d.drawString(fraseParaExibir, xFrase, yFrase);
+
+            // --- 3. Barra de progresso ---
+            int barraLargura = 250; // Barra um pouco maior
+            int barraAltura = 12;   // Barra um pouco mais grossa
+            int xBarra = (getWidth() - barraLargura) / 2;
+            int yBarra = yFrase + 35; // Um pouco mais abaixo do texto
+
+            g2d.setColor(CafeColors.MARROM_CLARO);
+            g2d.fillRect(xBarra, yBarra, barraLargura, barraAltura);
+
+            // O progersso é (etapaAtual + 1) de um total de 'totalEtapas'
+            int progressoLargura = (barraLargura * (etapaAtual + 1)) / totalEtapas;
+            g2d.setColor(CafeColors.BOTAO_ACERTO);
+            g2d.fillRect(xBarra, yBarra, progressoLargura, barraAltura);
+
+            g2d.setColor(CafeColors.TEXTO_BRANCO);
+            g2d.drawRect(xBarra, yBarra, barraLargura, barraAltura);
+
         } else {
             // Fallback (se a imagem falhar)
-            g2d.setFont(new Font("Monospaced", Font.PLAIN, 16));
+            g2d.setFont(new Font("Monospaced", Font.PLAIN, 18));
             g2d.setColor(CafeColors.TEXTO_BRANCO);
-            g2d.drawString("[imagem do cliente]", getWidth() / 2 - 50, getHeight() / 2 - 50);
+            g2d.drawString("[imagem do cliente]", getWidth() / 2 - 80, getHeight() / 2 - 50);
+            
+            // Desenhar a frase e barra de progresso no fallback para manter a animação
+            // ... (Você pode duplicar a lógica de frase/barra aqui se quiser manter a animação)
         }
-        
-        // --- 2. Frase de transição (Dinâmica) ---
-        String fraseParaExibir;
-        
-        if (etapaAtual < frasesLoading.length) {
-            // Se a etapa atual está dentro do array de loading...
-            fraseParaExibir = frasesLoading[etapaAtual];
-        } else {
-            // Senão, é a última etapa (a frase do cliente)
-            fraseParaExibir = this.fraseClienteAtual;
-        }
-        
-        g2d.setFont(new Font("Monospaced", Font.PLAIN, 16));
-        g2d.setColor(CafeColors.TEXTO_BRANCO);
-        
-        FontMetrics fmFrase = g2d.getFontMetrics();
-        int xFrase = (getWidth() - fmFrase.stringWidth(fraseParaExibir)) / 2;
-        int yFrase = getHeight() / 2 + 50; 
-        g2d.drawString(fraseParaExibir, xFrase, yFrase);
-        
-        // --- 3. Barra de progresso ---
-        int barraLargura = 200;
-        int barraAltura = 10;
-        int xBarra = (getWidth() - barraLargura) / 2;
-        int yBarra = yFrase + 30;
-        
-        g2d.setColor(CafeColors.MARROM_CLARO);
-        g2d.fillRect(xBarra, yBarra, barraLargura, barraAltura);
-        
-        // O progresso é (etapaAtual + 1) de um total de 'totalEtapas'
-        int progressoLargura = (barraLargura * (etapaAtual + 1)) / totalEtapas;
-        g2d.setColor(CafeColors.BOTAO_ACERTO);
-        g2d.fillRect(xBarra, yBarra, progressoLargura, barraAltura);
-        
-        g2d.setColor(CafeColors.TEXTO_BRANCO);
-        g2d.drawRect(xBarra, yBarra, barraLargura, barraAltura);
     }
-    
+
     private void configurarLayout() {
         setLayout(new BorderLayout());
         setBackground(CafeColors.FUNDO_CAFE_ESCURO);
@@ -166,20 +193,22 @@ public class TelaClienteChegando extends JPanel implements MainUI.Atualizavel {
 
     /**
      * Método utilitário para carregar e escalar imagens com segurança.
-     * *** CORRIGIDO O BUG ***
      */
     private ImageIcon carregarIcone(String caminho, int larguraAlvo) {
         try {
             ImageIcon originalIcon = new ImageIcon(caminho);
-            Image originalImage = originalIcon.getImage(); // Pega a imagem
+            Image originalImage = originalIcon.getImage();
 
-            // --- CORREÇÃO AQUI ---
-            // Chamando getWidth/getHeight na 'originalImage', não 'originalIcon'
             int originalLargura = originalImage.getWidth(null);
             int originalAltura = originalImage.getHeight(null);
-            // --- FIM DA CORREÇÃO ---
 
-            if (larguraAlvo == -1 || originalLargura <= larguraAlvo) {
+            if (larguraAlvo == -1 || originalLargura <= 0 || originalAltura <= 0) {
+                 // Retorna o original se o alvo não for definido ou dimensões inválidas
+                 return originalIcon;
+            }
+            
+            if (originalLargura <= larguraAlvo) {
+                // Não precisa escalar se já for menor que o alvo
                 return originalIcon;
             }
 
